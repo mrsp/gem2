@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <rosparam file="$(find gem2)/config/gem2_params_nao.yaml" command="load"/> 
+  <node pkg="gem2" type="gem2_ros.py" name="gem2" respawn="false" output="screen"/>
+</launch>

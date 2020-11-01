@@ -1,0 +1,19 @@
+#Common Configuration Parameters
+gem2_left_foot_wrench_topic: "/ihmc_ros/valkyrie/output/foot_force_sensor/left"  #left foot FT
+gem2_right_foot_wrench_topic: "/ihmc_ros/valkyrie/output/foot_force_sensor/right" #right foot FT
+gem2_freq: 200    #min freq of all topics
+gem2_lfoot_frame: "LFoot"   #left foot frame 
+gem2_rfoot_frame: "RFoot"   #right foot frame 
+gem2_dim: 2
+#Unsupervisead Gait Phase Learning Parameters
+#Only if use_UL is True
+gem2_imu_topic: "/pelvisMiddleImu/imu" # base_link (body) IMU
+gem2_com_topic: "/SERoW/rel_CoM/pose"  #relative to base_link (body) CoM - computed with kinematics
+gem2_plot_results: True #plot the results only works when Dimensionality Reduction is performed
+gem2_gt_comparison: True  #compare to ground-truth, to do so user must supply true friction coefficient mu and ground reaction forces and torques.
+gem2_save: False  #Save the Training Results to load in real-time
+#gem2_dim_reduction: "variationalAutoencoders" #autoencoders or pca supported at the current time
+gem2_dim_reduction: "autoencoders" #autoencoders or pca supported at the current time
+gem2_clustering: "gmm" #gmm or kmeans supported at the current time
+gem2_train_path: "/home/master/gem2_ws/src/gem2/src/gem2_test_valkyrie" #path to training data, data must have same(or approx. same) sampling rate e.g. gem2_freq.
+gem2: True

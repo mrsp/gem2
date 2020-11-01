@@ -1,0 +1,30 @@
+#Common Configuration Parameters
+gem2_robot: "talos_real"
+gem2_left_foot_wrench_topic: "/left_ankle_ft"  #left foot FT
+gem2_right_foot_wrench_topic: "/right_ankle_ft" #right foot FT
+gem2_freq: 100    #min freq of all topics
+gem2_lfoot_frame: "left_sole_link"   #left foot frame 
+gem2_rfoot_frame: "right_sole_link"   #right foot frame 
+#Unsupervisead Gait Phase Learning Parameters
+#Only if use_UL is True
+gem2_imu_topic: "/torso_imu" # base_link (body) IMU
+gem2_com_topic: "/gem2/rel_CoM/position"  #relative to base_link (body) CoM - computed with kinematics
+gem2_plot_results: True #plot the results only works when Dimensionality Reduction is performed
+gem2_dim: 2
+gem2_gt_comparison: False  #compare to ground-truth, to do so user must supply true friction coefficient mu and ground reaction forces and torques.
+gem2_save: True  #Save the Training Results to load in real-time
+gem2: True
+#gem2_dim_reduction: "autoencoders" 
+useLabels: True
+gem2_dim_reduction: "supervisedAutoencoders"
+
+
+#gem2_dim_reduction: "autoencoders"
+gem2_clustering: "gmm" #gmm or kmeans supported at the current time
+gem2_train_path: "../GEM2_talos_training/talosReal4" #path to training data relative to src e.g. "../gem2/src/gem2_train_path", data must have same(or approx. same) sampling rate e.g. gem2_freq.
+gem2_validation_path: "../GEM2_talos_validation/talosReal4" #path to training data relative to src e.g. "../gem2/src/gem2_train_path", data must have same(or approx. same) sampling rate e.g. gem2_freq.
+gem2_validation: True
+gem2_lfoot_torque_bias: [0, 0, 0] #left foot FT bias  
+gem2_lfoot_force_bias: [0, 0, 0] 
+gem2_rfoot_torque_bias: [0, 0, 0] #right foot FT bias 
+gem2_rfoot_force_bias: [0, 0, 0]
