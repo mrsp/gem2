@@ -9,7 +9,10 @@ GEM2 can be used for real-time gait phase estimation. The latter functionality f
 A ROS - C/C++ package for gathering  all necessary data for GEM2 in real-time.
 
 ## Training
-Solely proprioceptive sensing is utilized in training, namely joint encoder, F/T, IMUs.
+Solely proprioceptive sensing is utilized in training, namely joint encoder, F/T, and IMUs.
+
+[![YouTube Link](img/training.png)  ](https://youtu.be/RjmGkNqykZY)
+
 
 ## Getting Started
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
