@@ -14,7 +14,7 @@ Solely proprioceptive sensing is utilized in training, namely joint encoder, F/T
 [![YouTube Link](img/training.png)  ](https://youtu.be/RjmGkNqykZY)
 
 ##Comparison to State-of-the-art
-![Talos in Gazebo](img/talosGEM2_Gazebo.png)
+![Talos in Gazebo](img/talosGEM2_Gazebo.PNG)
 [![YouTube Link](img/GEM2vsCMeans.png)  ](https://youtu.be/h16g7qxu3QI)
 
 
