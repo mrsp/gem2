@@ -1,6 +1,5 @@
-#! /usr/bin/env python
-# -*- encoding: UTF-8 -*-
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 '''
  *GEM2 - Gait-phase Estimation Module 2
@@ -66,15 +65,15 @@ class  gem2_ros():
 		self.support_leg = "None"
 		robot = rospy.get_param('gem2_robot','nao')
 		print('Loading the GEM2 Models')
-		imu_topic = rospy.get_param('gem2_base_imu_topic')
-		limu_topic = rospy.get_param('gem2_left_leg_imu_topic')
-		rimu_topic = rospy.get_param('gem2_right_leg_imu_topic')
+		imu_topic = rospy.get_param('gem2_base_imu_topic','/imu')
+		limu_topic = rospy.get_param('gem2_left_leg_imu_topic','/limu')
+		rimu_topic = rospy.get_param('gem2_right_leg_imu_topic','/rimu')
 
-		vcom_topic = rospy.get_param('gem2_com_velocity_topic')
-		lft_topic = rospy.get_param('gem2_left_leg_wrench_topic')
-		rft_topic = rospy.get_param('gem2_right_leg_wrench_topic')
-		lvel_topic = rospy.get_param('gem2_left_leg_velocity_topic')
-		rvel_topic = rospy.get_param('gem2_right_leg_velocity_topic')
+		vcom_topic = rospy.get_param('gem2_com_velocity_topic','/vcom')
+		lft_topic = rospy.get_param('gem2_left_leg_wrench_topic','/lft')
+		rft_topic = rospy.get_param('gem2_right_leg_wrench_topic','/rft')
+		lvel_topic = rospy.get_param('gem2_left_leg_velocity_topic','/lvel')
+		rvel_topic = rospy.get_param('gem2_right_leg_velocity_topic','/rvel')
 
 
 		self.vcom_sub  = rospy.Subscriber(vcom_topic,TwistStamped, self.vcomcb)
