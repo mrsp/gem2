@@ -46,7 +46,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import WrenchStamped
 from geometry_msgs.msg import TwistStamped
 from sensor_msgs.msg import Imu
-import pickle as pickle
+import pickle
 
 
 class  gem2_ros():
@@ -56,7 +56,7 @@ class  gem2_ros():
 		self.leg_pub = rospy.Publisher('/gem2/support_leg', String, queue_size=1000)
 		self.RLeg_pub = rospy.Publisher('/gem2/RLegContactProbability', Float32, queue_size=1000)
 		self.LLeg_pub = rospy.Publisher('/gem2/LLegContactProbability', Float32, queue_size=1000)
-		freq = rospy.get_param('gem2_freq',200)
+		freq = rospy.get_param('gem2_freq',100)
 		self.freq = freq
 		self.phase_msg = Int32()
 		self.phase = -1	
