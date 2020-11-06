@@ -42,10 +42,6 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-#color_iter = itertools.cycle(['navy', 'c', 'cornflowerblue', 'gold',
-#'darkorange'])
-
-
 my_colors = [(0.5,0,0.5),(0,0.5,0.5),(0.8,0.36,0.36)]
 cmap_name = 'my_list'
 my_cmap = LinearSegmentedColormap.from_list(
@@ -67,7 +63,7 @@ params = {
 plt.rcParams.update(params)
 
 class GEM2_tools():
-    def __init__(self, validation = False, gt_comparison=False, gem2 = False, useLabels = False):
+    def __init__(self, validation = False, gt_comparison=False, gem2 = True, useLabels = True):
         self.gt_comparison = gt_comparison
         self.validation = validation
         self.gem2 = gem2
@@ -491,8 +487,7 @@ class GEM2_tools():
 
         print("Data Dim Train")
         print(dlen)
-        print("Data Dim Val")
-        print(dlen_val)
+
 
     def genInput(self, data, gt=None):
 
@@ -508,9 +503,9 @@ class GEM2_tools():
         output_ = np.append(output_, data.ltZ - data.rtZ, axis = 0)
 
         if(not gt.gem2):
-            output_ = np.append(output_, gt.cXdt.diff(data.cX), axis = 0)
-            output_ = np.append(output_, gt.cYdt.diff(data.cY), axis = 0)
-            output_ = np.append(output_, gt.cZdt.diff(data.cZ), axis = 0)
+            output_ = np.append(output_, data.dcX, axis = 0)
+            output_ = np.append(output_, data.dcY, axis = 0)
+            output_ = np.append(output_, data.dcZ, axis = 0)
             output_ = np.append(output_, data.accX, axis = 0)
             output_ = np.append(output_, data.accY, axis = 0)
             output_ = np.append(output_, data.accZ, axis = 0)
@@ -527,24 +522,17 @@ class GEM2_tools():
             output_ = np.append(output_, data.lwX - data.rwX, axis = 0)
             output_ = np.append(output_, data.lwY - data.rwY, axis = 0)
             output_ = np.append(output_, data.lwZ - data.rwZ, axis = 0)
+            output_ = np.append(output_, data.laccX - data.raccX, axis = 0)
+            output_ = np.append(output_, data.laccY - data.raccY, axis = 0)
+            output_ = np.append(output_, data.laccZ - data.raccZ, axis = 0)
+            #output_ = np.append(output_, data.lgX - data.rgX, axis = 0)
+            #output_ = np.append(output_, data.lgY - data.rgY, axis = 0)
+            #output_ = np.append(output_, data.lgZ - data.rgZ, axis = 0)
 
-            if(not gt.useLabels):
-                output_ = np.append(output_, data.laccX - data.raccX, axis = 0)
-                output_ = np.append(output_, data.laccY - data.raccY, axis = 0)
-                output_ = np.append(output_, data.laccZ - data.raccZ, axis = 0)
-            else:
-                output_ = np.append(output_, data.baccX_LL, axis = 0)
-                output_ = np.append(output_, data.baccY_LL, axis = 0)
-                output_ = np.append(output_, data.baccZ_LL, axis = 0)
-                output_ = np.append(output_, data.baccX_RL, axis = 0)
-                output_ = np.append(output_, data.baccY_RL, axis = 0)
-                output_ = np.append(output_, data.baccZ_RL, axis = 0)
-                output_ = np.append(output_, data.baccX, axis = 0)
-                output_ = np.append(output_, data.baccY, axis = 0)
-                output_ = np.append(output_, data.baccZ, axis = 0)
+              
 
         for i in range(self.data_train.shape[1]):
-            output_[i] = self.normalize_data(output_[i],self.data_train_max[i], self.data_train_min[i])   
+            output_[i] = self.normalize(output_[i],self.data_train_max[i], self.data_train_min[i])   
             #output_[i] = self.normalizeMean_data(output_[i],self.data_train_max[i], self.data_train_min[i], self.data_train_mean[i])   
 
 
@@ -632,15 +620,15 @@ class GEM2_tools():
             d1=d1[~(d1==0).all(1)]
             d2=d2[~(d2==0).all(1)]
             d3=d3[~(d3==0).all(1)]
-            print('----')
-            print(d1)
-            print('----')
-            print('----')
-            print(d2)
-            print('----')
-            print('----')
-            print(d3)
-            print('----')
+            # print('----')
+            # print(d1)
+            # print('----')
+            # print('----')
+            # print(d2)
+            # print('----')
+            # print('----')
+            # print(d3)
+            # print('----')
             mean=np.zeros((3,2))
             mean[0,0]=np.mean(d1[:,0])
             mean[0,1]=np.mean(d1[:,1])
@@ -815,8 +803,7 @@ class GEM2_tools():
         plt.title(title)
         plt.grid('on')
         plt.show()
-        #pdf=PdfPages(title+".pdf")
-        #pdf.savefig(fig)
+
 
 
     def plot_latent_space(self,g):
@@ -867,52 +854,50 @@ class GEM2_tools():
         plt.show()
 
 
-class diff_tool():
-    def __init__(self, x_=None, dx_=None):
-        self.x = x_
-        self.dx = dx_
-
-    def diff(self,x_):
-        if(self.x is None):
-            self.dx = 0
-        else:
-            self.dx = x_ - self.x
-
-        self.x = x_
-        return self.dx
-
-    def reset(self):
-        self.dx = None
-        self.x = None
-
-
-class cf:
-    def __init__(self,freq_ = 100.0, alpha_ = 0.98):
-        self.alpha = alpha_
-        self.freq = freq_
-        self.roll = 0.0
-        self.pitch = 0.0
-        self.firstrun = True
-
-
-    def computeAccAngle(self,accX,accY,accZ):
-        roll = atan2(accY,sqrt(accX*accX+accZ*accZ))
-        pitch = atan2(accX,sqrt(accZ*accZ+accY*accY))
-        return roll,pitch
-
-    def update(self,accX,accY,accZ,gX,gY):
-        roll_, pitch_ = self.computeAccAngle(accX,accY,accZ)
-        if(self.firstrun):
-            self.roll =  roll_
-            self.pitch = pitch_
-            self.firstrun = False
-        else:
-            self.roll = self.alpha * (self.roll + gX * 1.0/self.freq) +  (1.0 - self.alpha)*roll_
-            self.pitch = self.alpha * (self.pitch + gY * 1.0/self.freq) +  (1.0 - self.alpha)*pitch_
-        return self.roll, self.pitch
-
-
-    def reset(self):
-        self.roll = 0.0
-        self.pitch = 0.0
-        self.firstrun = True
+class GEM2_data:
+    def __init__(self):
+        self.lfX = 0
+        self.lfY = 0
+        self.lfZ = 0
+        self.ltX = 0
+        self.ltY = 0
+        self.ltZ = 0
+        self.rfX = 0
+        self.rfY = 0
+        self.rfZ = 0
+        self.rtX = 0
+        self.rtY = 0
+        self.rtZ = 0
+        self.accX = 0
+        self.accY = 0
+        self.accZ = 0
+        self.gX = 0
+        self.gY = 0
+        self.gZ = 0
+        self.laccX = 0
+        self.laccY = 0
+        self.laccZ = 0
+        # self.lgX = 0
+        # self.lgY = 0
+        # self.lgZ = 0
+        self.raccX = 0
+        self.raccY = 0
+        self.raccZ = 0
+        # self.rgX = 0
+        # self.rgY = 0
+        # self.rgZ = 0
+        self.dcX = 0
+        self.dcY = 0
+        self.dcZ = 0
+        self.lvX = 0
+        self.lvY = 0
+        self.lvZ = 0
+        self.lwX = 0
+        self.lwY = 0
+        self.lwZ = 0
+        self.rvX = 0
+        self.rvY = 0
+        self.rvZ = 0
+        self.rwX = 0
+        self.rwY = 0
+        self.rwZ = 0

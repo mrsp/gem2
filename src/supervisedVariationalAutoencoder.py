@@ -30,38 +30,56 @@
 '''
 
 
-from keras.layers import Lambda, Input, Dense
-from keras.models import Model
-from keras.losses import binary_crossentropy
-from keras.utils import plot_model
-from keras import backend as K
-import numpy as np
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Sequential, Model,load_model, save_model
+from tensorflow.keras.layers import Input, Dense, Lambda
+import tempfile
+import os
+# Hotfix function
+def make_keras_picklable():
+    def __getstate__(self):
+        model_str = ""
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            save_model(self, fd.name, overwrite=True)
+            model_str = fd.read()
+        d = {'model_str': model_str}
+        os.unlink(fd.name)
+        return d
 
-def clf_loss(y_true, y_pred):
-    #x  = 1.0 * K.square(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
-    #y  = 1.0 * K.square(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
-    #z  = 1.0 * K.square(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
-    #loss = K.mean(K.sqrt(x + y + z + K.epsilon()))
+    def __setstate__(self, state):
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            fd.write(state['model_str'])
+            fd.flush()
+            model = load_model(fd.name)
+        os.unlink(fd.name)
+        self.__dict__ = model.__dict__
 
 
-    x  = 1.0 * K.abs(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
-    y  = 1.0 * K.abs(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
-    z  = 1.0 * K.abs(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
-    #loss = K.sum(x + y + z, axis = -1)
-    loss = K.mean(x + y + z)
-    return loss
+    cls = Model
+    cls.__getstate__ = __getstate__
+    cls.__setstate__ = __setstate__
 
-def rmse(y_true, y_pred):
-    return K.sqrt(K.mean(K.square(y_pred - y_true))) 
-
-def mae(y_true, y_pred):
-    return K.mean(K.abs(y_pred - y_true)) 
 
 
 class supervisedVariationalAutoencoder():
     def __init__(self):
         self.firstrun = True
+        make_keras_picklable()
+
+    def clf_loss(self, y_true, y_pred):
+        x  = 1.0 * K.abs(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
+        y  = 1.0 * K.abs(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
+        z  = 1.0 * K.abs(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
+        loss = K.mean(x + y + z)
+        return loss
     
+    def rmse(self, y_true, y_pred):
+        return K.sqrt(K.mean(K.square(y_pred - y_true)))
+    
+    def mae(self, y_true, y_pred):
+        return K.mean(K.abs(y_pred - y_true)) 
+
+
     # reparameterization trick
     # instead of sampling from Q(z|X), sample epsilon = N(0,I)
     # z = z_mean + sqrt(var) * epsilon
@@ -111,7 +129,7 @@ class supervisedVariationalAutoencoder():
         outputs = [decoder(self.encoder(inputs)[2]), self.predicted]
         self.model = Model(inputs, outputs, name='vae_mlp')
         #self.model.summary()
-        reconstruction_loss = mae(inputs, outputs[0])
+        reconstruction_loss = self.mae(inputs, outputs[0])
         kl_loss = 1 + z_log_var - K.square(z_mean) - K.exp(z_log_var)
         kl_loss = K.sum(kl_loss, axis=-1)
         kl_loss *= -0.5
@@ -119,10 +137,9 @@ class supervisedVariationalAutoencoder():
         self.model.add_loss(vae_loss)
 
         # New: add the clf loss
-        self.model.compile(optimizer='adam', loss={'class_output': clf_loss},loss_weights={'class_output': 0.1})
+        self.model.compile(optimizer='adam', loss={'class_output': self.clf_loss},loss_weights={'class_output': 0.1})
         #self.model.summary()
         #plot_model(self.model, to_file='supervised_vae.png', show_shapes=True)
 
     def fit(self, x_train, y_train, x_validation, y_validation, epochs, batch_size):
-        # reconstruction_loss = binary_crossentropy(inputs, outputs)
         self.model_log = self.model.fit(x_train, {'reconst_output':x_train, 'class_output': y_train}, validation_data = (x_validation, {'reconst_output':x_validation, 'class_output': y_validation}), epochs=epochs, batch_size=batch_size, verbose=1, shuffle=True)

@@ -34,21 +34,16 @@
 
 from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
-
 from sklearn import mixture
 from sklearn.cluster import KMeans
-#import keras
-from keras.layers import Input, Dense
-from keras.models import Model
-from variationalAutoencoder import variationalAutoencoder
 from autoencoder import autoencoder
+#from variationalAutoencoder import variationalAutoencoder
 from supervisedAutoencoder import supervisedAutoencoder
-from supervisedVariationalAutoencoder import supervisedVariationalAutoencoder
+#from supervisedVariationalAutoencoder import supervisedVariationalAutoencoder
 from supervisedClassifier import supervisedClassifier
-import pickle
 class GEM2():
     def __init__(self):
-        self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='full', max_iter=200, tol=5.0e-2, init_params = 'kmeans', n_init=100,warm_start=False,verbose=1)
+        self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='full', max_iter=200, tol=5.0e-2, init_params = 'kmeans', n_init=50,warm_start=False,verbose=1)
         self.kmeans = KMeans(init='k-means++',n_clusters=3, n_init=500,tol=1.0e-3)
         self.pca_dim = False
         self.gmm_cl_id = False
@@ -69,12 +64,12 @@ class GEM2():
         self.pca = PCA(n_components=self.latent_dim)
         self.ae = autoencoder()
         self.ae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim)
-        self.vae = variationalAutoencoder()
-        self.vae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim)
+        # self.vae = variationalAutoencoder()
+        # self.vae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim)
         self.sae = supervisedAutoencoder()
         self.sae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim, 2)
-        self.svae = supervisedVariationalAutoencoder()
-        self.svae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim, 2)
+        # self.svae = supervisedVariationalAutoencoder()
+        # self.svae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim, 2)
         self.sc = supervisedClassifier()
         self.sc.setDimensions(self.input_dim, self.latent_dim, self.intermidiate_dim)
 
@@ -92,15 +87,15 @@ class GEM2():
         elif red == 'autoencoders':
             print("Dimensionality reduction with autoencoders")
             self.reduceAE(data_train, data_validation)
-        elif red == "variationalAutoencoders":
-            print("Dimensionality reduction with variational autoencoders")
-            self.reduceVAE(data_train, data_validation)
+        # elif red == "variationalAutoencoders":
+        #     print("Dimensionality reduction with variational autoencoders")
+        #     self.reduceVAE(data_train, data_validation)
         elif red == "supervisedAutoencoders":
             print("Dimensionality reduction with supervised autoencoders")     
             self.reduceSAE(data_train,data_labels,data_validation,data_validation_labels)
-        elif red == "supervisedVariationalAutoencoders":
-            print("Dimensionality reduction with supervised variational autoencoders")
-            self.reduceSVAE(data_train,data_labels,data_validation,data_validation_labels)
+        # elif red == "supervisedVariationalAutoencoders":
+        #     print("Dimensionality reduction with supervised variational autoencoders")
+        #     self.reduceSVAE(data_train,data_labels,data_validation,data_validation_labels)
         elif red == "supervisedClassifier":
             print("Classification with Labels")
             self.reduceSC(data_train,data_labels,data_validation,data_validation_labels)
@@ -129,12 +124,12 @@ class GEM2():
             reduced_data = self.pca.transform(data_.reshape(1,-1))
         elif(self.red == 'autoencoders'):
             reduced_data = self.ae.encoder.predict(data_.reshape(1,-1))
-        elif(self.red == 'variationalAutoencoders'):
-            reduced_data = self.vae.encoder.predict(data_.reshape(1,-1))[0]
+        # elif(self.red == 'variationalAutoencoders'):
+        #     reduced_data = self.vae.encoder.predict(data_.reshape(1,-1))[0]
         elif(self.red == 'supervisedAutoencoders'):
             reduced_data = self.sae.encoder.predict(data_.reshape(1,-1))
-        elif(self.red == 'supervisedVariationalAutoencoders'):
-            reduced_data = self.svae.encoder.predict(data_.reshape(1,-1))[0]
+        # elif(self.red == 'supervisedVariationalAutoencoders'):
+        #     reduced_data = self.svae.encoder.predict(data_.reshape(1,-1))[0]
         elif(self.red == "supervisedClassifier"):
             reduced_data = self.sc.model.predict(data_.reshape(1,-1))[0]
         else:
@@ -173,7 +168,7 @@ class GEM2():
         print(mean_squared_error(data_train, self.pca.inverse_transform(self.reduced_data_train)))
 
     def reduceAE(self,data_train,data_validation):
-        self.ae.fit(data_train,data_validation,25, 2)
+        self.ae.fit(data_train,data_validation,1, 2)
         self.reduced_data_train =  self.ae.encoder.predict(data_train)
         self.pca_dim = False
         if(self.save_model):
@@ -182,26 +177,26 @@ class GEM2():
     def reduceSAE(self,data_train,data_labels,data_validation,data_validation_labels):
         print("Data Size")
         print(data_train.shape)
-        self.sae.fit(data_train,data_labels,data_validation, data_validation_labels, 100, 1)
+        self.sae.fit(data_train,data_labels,data_validation, data_validation_labels, 1, 1)
         self.reduced_data_train =  self.sae.model.predict(data_train)[1]
         self.leg_probabilities = self.sae.model.predict(data_train)[2]
         if(self.save_model):
             self.sae.model.save(self.robot + '_SAE.h5')
         self.pca_dim = False
 
-    def reduceSVAE(self,data_train,data_labels,data_validation,data_validation_labels):
-        self.svae.fit(data_train,data_labels,data_validation, data_validation_labels, 500, 2)
-        self.reduced_data_train =  self.svae.encoder.predict(data_train)[0]
-        if(self.save_model):
-            self.svae.model.save(self.robot + '_SVAE.h5')
-        self.pca_dim = False
+    # def reduceSVAE(self,data_train,data_labels,data_validation,data_validation_labels):
+    #     self.svae.fit(data_train,data_labels,data_validation, data_validation_labels, 500, 2)
+    #     self.reduced_data_train =  self.svae.encoder.predict(data_train)[0]
+    #     if(self.save_model):
+    #         self.svae.model.save(self.robot + '_SVAE.h5')
+    #     self.pca_dim = False
 
-    def reduceVAE(self,data_train,data_validation):
-        self.vae.fit(data_train,data_validation,50,2)
-        self.reduced_data_train =  self.vae.encoder.predict(data_train)[0]
-        if(self.save_model):
-            self.vae.model.save(self.robot + '_VAE.h5')
-        self.pca_dim = False
+    # def reduceVAE(self,data_train,data_validation):
+    #     self.vae.fit(data_train,data_validation,50,2)
+    #     self.reduced_data_train =  self.vae.encoder.predict(data_train)[0]
+    #     if(self.save_model):
+    #         self.vae.model.save(self.robot + '_VAE.h5')
+    #     self.pca_dim = False
 
     def reduceSC(self,data_train,data_labels,data_validation,data_validation_labels):
         self.sc.fit(data_train,data_labels,data_validation, data_validation_labels, 50, 2)
@@ -211,13 +206,11 @@ class GEM2():
     def clusterGMM(self):
         self.gmm.fit(self.reduced_data_train)
         self.predicted_labels_train = self.gmm.predict(self.reduced_data_train)
-        pickle.dump(self.kmeans, open(self.robot + '_GMM.sav', 'wb'))
 
 
     def clusterKMeans(self):
         self.kmeans.fit(self.reduced_data_train)
         self.predicted_labels_train = self.kmeans.predict(self.reduced_data_train)
-        pickle.dump(self.kmeans, open(self.robot + '_KMEANS.sav', 'wb'))
 
     def getSupportLeg(self):
         return self.support_leg

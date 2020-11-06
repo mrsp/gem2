@@ -30,20 +30,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from keras.layers import Input, Dense
-from keras.models import Model
-from keras.losses import binary_crossentropy
-from keras.utils import plot_model
-from keras import backend as K
-import numpy as np
 
-def rmse(y_true, y_pred):
-        return K.sqrt(K.mean(K.square(y_pred - y_true))) 
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Sequential, Model,load_model, save_model
+from tensorflow.keras.layers import Input, Dense
+import tempfile
+import os
+# Hotfix function
+def make_keras_picklable():
+    def __getstate__(self):
+        model_str = ""
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            save_model(self, fd.name, overwrite=True)
+            model_str = fd.read()
+        d = {'model_str': model_str}
+        os.unlink(fd.name)
+        return d
+
+    def __setstate__(self, state):
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            fd.write(state['model_str'])
+            fd.flush()
+            model = load_model(fd.name)
+        os.unlink(fd.name)
+        self.__dict__ = model.__dict__
+
+
+    cls = Model
+    cls.__getstate__ = __getstate__
+    cls.__setstate__ = __setstate__
+
+
 
 class autoencoder():
     def __init__(self):
         self.firstrun = True
+        make_keras_picklable()
 
+
+    def rmse(self, y_true, y_pred):
+        return K.sqrt(K.mean(K.square(y_pred - y_true))) 
+        
     def setDimReduction(self, input_dim, latent_dim, intermediate_dim):
         input_= Input(shape=(input_dim,))
         # "encoded" is the encoded representation of the input
@@ -56,12 +83,12 @@ class autoencoder():
         self.model = Model(inputs=[input_], outputs=[decoded])
         # this model maps an input to its encoded representation
         self.encoder = Model(inputs=[input_], outputs=[encoded])
-        self.model.compile(optimizer='adam', loss={"reconst_output":"mse"})
+        self.model.compile(optimizer='rmsprop', loss={"reconst_output":"mse"})
         #self.model.summary()
         self.firstrun = False
 
-    def fit(self, x_train, x_validation, epochs, batch_size):
-        self.model_log = self.model.fit(x_train, x_train, validation_data=(x_validation, x_validation), epochs=epochs, batch_size=batch_size,  verbose=1, shuffle=True)
+    def fit(self, x_train, x_validation, epochs_, batch_size_):
+        self.model_log = self.model.fit(x_train, x_train, validation_data=(x_validation, x_validation), epochs=epochs_, batch_size=batch_size_,  verbose=1, shuffle=True)
 
  
         

@@ -30,25 +30,48 @@
 '''
 
 
-from keras.layers import Lambda, Input, Dense
-from keras.models import Model
-from keras.losses import binary_crossentropy
-from keras.utils import plot_model
-from keras import backend as K
-import numpy as np
-def rmse(y_true, y_pred):
-    return K.sqrt(K.mean(K.square(y_pred - y_true))) 
 
-def mae(y_true, y_pred):
-    return K.mean(K.abs(y_pred - y_true)) 
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Sequential, Model,load_model, save_model
+from tensorflow.keras.layers import Input, Dense, Lambda
+import tempfile
+import os
+# Hotfix function
+def make_keras_picklable():
+    def __getstate__(self):
+        model_str = ""
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            save_model(self, fd.name, overwrite=True)
+            model_str = fd.read()
+        d = {'model_str': model_str}
+        os.unlink(fd.name)
+        return d
 
+    def __setstate__(self, state):
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            fd.write(state['model_str'])
+            fd.flush()
+            model = load_model(fd.name)
+        os.unlink(fd.name)
+        self.__dict__ = model.__dict__
+
+
+    cls = Model
+    cls.__getstate__ = __getstate__
+    cls.__setstate__ = __setstate__
 
 
 class variationalAutoencoder():
     def __init__(self):
         self.firstrun = True
-    
-    
+        make_keras_picklable()
+
+    def rmse(self,y_true, y_pred):
+        return K.sqrt(K.mean(K.square(y_pred - y_true))) 
+        
+    def mae(self,y_true, y_pred):
+        return K.mean(K.abs(y_pred - y_true)) 
+
     # reparameterization trick
     # instead of sampling from Q(z|X), sample epsilon = N(0,I)
     # z = z_mean + sqrt(var) * epsilon
@@ -94,7 +117,7 @@ class variationalAutoencoder():
         outputs = self.decoder(self.encoder(inputs)[0])
         self.model = Model(inputs, outputs, name='vae_mlp')
         self.model.summary()
-        reconstruction_loss = mae(inputs, outputs)
+        reconstruction_loss = self.mae(inputs, outputs)
         kl_loss = 1 + z_log_var - K.square(z_mean) - K.exp(z_log_var)
         kl_loss = K.sum(kl_loss, axis=-1)
         kl_loss *= -0.5

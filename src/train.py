@@ -40,6 +40,7 @@ import matplotlib.pyplot as plt
 import sys
 import yaml
 import os
+from threading import Thread 
 
 def load_config(config_file):
     with open(config_file, 'r') as stream:
@@ -47,7 +48,6 @@ def load_config(config_file):
             return yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
-
 
 
 
@@ -95,5 +95,13 @@ if __name__ == "__main__":
 			gt.plot_results(g.reduced_data_train, g.predicted_labels_train, g.gmm.means_, g.gmm.covariances_, 'Clustering with Gaussian Mixture Models')
 		else:
 			print("Unsupported Result Plotting")
+
+	
+	if(config['gem2_save']):
+		with open(robot + '_gem2.sav', 'wb') as file:
+			pickle.dump(g, file)
+		with open(robot + '_gem2_tools.sav', 'wb') as file:
+			pickle.dump(gt, file)
 	print('Training Finished')
+	
 	

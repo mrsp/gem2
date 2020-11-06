@@ -17,10 +17,12 @@ gem2_save: True  #Save the Training Results to load in real-time
 #gem2_dim_reduction: "supervisedClassifier" 
 #gem2_dim_reduction: "supervisedVariationalAutoencoders" 
 #gem2_dim_reduction: "pca"
-gem2_dim_reduction: "supervisedAutoencoders"
-useLabels: True
-gem2_validation: True
-gem2: True
+#gem2_dim_reduction: "supervisedAutoencoders"
+gem2_dim_reduction: "autoencoders" 
+
+useLabels: False
+gem2_validation: False
+gem2: False
 gem2_clustering: "gmm" #gmm or kmeans supported at the current time
 gem2_train_path: "../GEM2_nao_training" #path to training data relative to src e.g. "../gem2/src/gem2_train_path", data must have same(or approx. same) sampling rate e.g. gem2_freq.
 gem2_validation_path: "../GEM2_nao_validation/NAO2" #path to training data relative to src e.g. "../gem2/src/gem2_train_path", data must have same(or approx. same) sampling rate e.g. gem2_freq.

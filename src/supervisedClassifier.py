@@ -29,34 +29,54 @@
  * POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from keras.layers import Input, Dense
-from keras.models import Model, Sequential
-from keras.optimizers import Adam
-from keras.losses import binary_crossentropy
-from keras.utils import plot_model
-import keras.backend as K
-import numpy as np
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import Sequential, Model,load_model, save_model
+from tensorflow.keras.layers import Input, Dense
+import tempfile
+import os
+# Hotfix function
+def make_keras_picklable():
+    def __getstate__(self):
+        model_str = ""
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            save_model(self, fd.name, overwrite=True)
+            model_str = fd.read()
+        d = {'model_str': model_str}
+        os.unlink(fd.name)
+        return d
+
+    def __setstate__(self, state):
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=False, dir=os.getcwd()) as fd:
+            fd.write(state['model_str'])
+            fd.flush()
+            model = load_model(fd.name)
+        os.unlink(fd.name)
+        self.__dict__ = model.__dict__
 
 
+    cls = Model
+    cls.__getstate__ = __getstate__
+    cls.__setstate__ = __setstate__
 
-def clf_loss(y_true, y_pred):
-    #x  = 1.0 * K.square(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
-    #y  = 1.0 * K.square(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
-    #z  = 1.0 * K.square(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
-    #loss = K.mean(K.sqrt(x + y + z + K.epsilon()))
-
-
-    x  = 0.4 * K.abs(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
-    y  = 0.4 * K.abs(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
-    z  = 0.2 * K.abs(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
-    #loss = K.sum(x + y + z, axis = -1)
-    loss = K.mean(x + y + z)
-    return loss
 
 
 class supervisedClassifier():
     def __init__(self):
         self.firstrun = True
+        make_keras_picklable()
+
+
+
+    def clf_loss(self, y_true, y_pred):
+        #x  = 1.0 * K.square(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
+        #y  = 1.0 * K.square(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
+        #z  = 1.0 * K.square(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
+        #loss = K.mean(K.sqrt(x + y + z + K.epsilon()))
+        x  = 0.4 * K.abs(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
+        y  = 0.4 * K.abs(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
+        z  = 0.2 * K.abs(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
+        loss = K.mean(x + y + z)
+        return loss
 
     def setDimensions(self, input_dim_, latent_dim, intermediate_dim):
         self.model = Sequential()
@@ -64,8 +84,8 @@ class supervisedClassifier():
         self.model.add(Dense(intermediate_dim, activation='tanh', use_bias = False))
         self.model.add(Dense(latent_dim, activation='tanh', use_bias = True))
         # Compile the model
-        self.model.compile(optimizer='adam', 
-                    loss=clf_loss, 
+        self.model.compile(optimizer='rmsprop', 
+                    loss=self.clf_loss, 
 )
         #self.model.summary()
         self.firstrun = False
