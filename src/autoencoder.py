@@ -80,7 +80,7 @@ class autoencoder():
         ## "decoded" is the lossy reconstruction of the input
         decoded = Dense(input_dim, activation='linear',name='reconst_output')(decoded)
         # this model maps an input to its reconstruction
-        self.model = Model(inputs=[input_], outputs=[decoded])
+        self.model = Model(inputs=[input_], outputs=[decoded,encoded])
         # this model maps an input to its encoded representation
         self.encoder = Model(inputs=[input_], outputs=[encoded])
         self.model.compile(optimizer='rmsprop', loss={"reconst_output":"mse"})

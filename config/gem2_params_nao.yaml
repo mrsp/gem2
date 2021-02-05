@@ -1,19 +1,19 @@
 #Common Configuration Parameters
 gem2_robot: "nao"
-gem2_left_foot_wrench_topic: "/gem2/LLeg/force_torque_states"  #left foot FT
-gem2_right_foot_wrench_topic: "/gem2/RLeg/force_torque_states" #right foot FT
+#gem2_left_foot_wrench_topic: "/gem2/LLeg/force_torque_states"  #left foot FT
+#gem2_right_foot_wrench_topic: "/gem2/RLeg/force_torque_states" #right foot FT
 gem2_freq: 100    #min freq of all topics
 gem2_lfoot_frame: "l_ankle"   #left foot frame 
 gem2_rfoot_frame: "r_ankle"   #right foot frame 
 #Unsupervisead Gait Phase Learning Parameters
-useUL: False  #Use Unsupervised Learning (Dimensionality Reduction + Clustering) for  Gait Phase Estimation
-#Only if use_UL is True
-gem2_imu_topic: "/gem2/rel_base_imu" # base_link (body) IMU
-gem2_com_topic: "/gem2/rel_CoM/pose"  #relative to base_link (body) CoM - computed with kinematics
+#gem2_imu_topic: "/gem2/rel_base_imu" # base_link (body) IMU
+#gem2_com_topic: "/gem2/rel_CoM/pose"  #relative to base_link (body) CoM - computed with kinematics
 gem2_plot_results: True #plot the results only works when Dimensionality Reduction is performed
 gem2_dim: 2
 gem2_gt_comparison: False  #compare to ground-truth, to do so user must supply true friction coefficient mu and ground reaction forces and torques.
-gem2_save: True  #Save the Training Results to load in real-time
+gem2_save: False  #Save the Training Results to load in real-time
+gem2_load: True  #Load the Training Results for real-time inferring
+
 #gem2_dim_reduction: "supervisedClassifier" 
 #gem2_dim_reduction: "supervisedVariationalAutoencoders" 
 #gem2_dim_reduction: "pca"

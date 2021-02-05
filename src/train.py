@@ -62,8 +62,9 @@ if __name__ == "__main__":
 
 
 	g = GEM2()
+	g.setMethods(config['gem2_dim_reduction'], config['gem2_clustering'])
 	g.setFrames(config['gem2_lfoot_frame'], config['gem2_rfoot_frame'])
-	g.setParams(config['gem2_dim'], config['gem2'], config['gem2_robot'], config['gem2_save'])
+	g.setParams(config['gem2_dim'], config['gem2'], config['gem2_robot'])
 	data_train = gt.data_train
 	data_labels = gt.data_label
 	data_val = gt.data_val
@@ -71,9 +72,9 @@ if __name__ == "__main__":
 
 
 
-	g.fit(data_train, data_val,  config['gem2_dim_reduction'], config['gem2_clustering'], data_labels, data_val_labels)
-	if(gt.useLabels):
-		gt.plot_accelerations_LR(g.leg_probabilities, data_labels)
+	g.fit(data_train, data_val, config['gem2_save'], data_labels, data_val_labels)
+	#if(gt.useLabels):
+		#gt.plot_accelerations_LR(g.leg_probabilities, data_labels)
 		#gt.plot_accelerations_LRD(g.leg_probabilities, data_labels,g.predicted_labels_train)
 
 
@@ -98,8 +99,6 @@ if __name__ == "__main__":
 
 	
 	if(config['gem2_save']):
-		with open(robot + '_gem2.sav', 'wb') as file:
-			pickle.dump(g, file)
 		with open(robot + '_gem2_tools.sav', 'wb') as file:
 			pickle.dump(gt, file)
 	print('Training Finished')

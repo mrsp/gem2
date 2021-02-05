@@ -495,42 +495,39 @@ class GEM2_tools():
             gt=self
 
         output_ = np.array([])
-        output_ = np.append(output_, data.lfX - data.rfX, axis = 0)
-        output_ = np.append(output_, data.lfY - data.rfY, axis = 0)
-        output_ = np.append(output_, data.lfZ - data.rfZ, axis = 0)
-        output_ = np.append(output_, data.ltX - data.rtX, axis = 0)
-        output_ = np.append(output_, data.ltY - data.rtY, axis = 0)
-        output_ = np.append(output_, data.ltZ - data.rtZ, axis = 0)
+        output_ = np.insert(output_, 0, data.lfX - data.rfX, axis = 0)
+        output_ = np.insert(output_, 1, data.lfY - data.rfY, axis = 0)
+        output_ = np.insert(output_, 2, data.lfZ - data.rfZ, axis = 0)
+        output_ = np.insert(output_, 3, data.ltX - data.rtX, axis = 0)
+        output_ = np.insert(output_, 4, data.ltY - data.rtY, axis = 0)
+        output_ = np.insert(output_, 5, data.ltZ - data.rtZ, axis = 0)
+        output_ = np.insert(output_, 6, data.dcX, axis = 0)
+        output_ = np.insert(output_, 7, data.dcY, axis = 0)
+        output_ = np.insert(output_, 8, data.dcZ, axis = 0)
+        output_ = np.insert(output_, 9, data.accX, axis = 0)
 
-        if(not gt.gem2):
-            output_ = np.append(output_, data.dcX, axis = 0)
-            output_ = np.append(output_, data.dcY, axis = 0)
-            output_ = np.append(output_, data.dcZ, axis = 0)
-            output_ = np.append(output_, data.accX, axis = 0)
-            output_ = np.append(output_, data.accY, axis = 0)
-            output_ = np.append(output_, data.accZ, axis = 0)
-            output_ = np.append(output_, data.gX, axis = 0)
-            output_ = np.append(output_, data.gY, axis = 0)
-            output_ = np.append(output_, data.gZ, axis = 0)
+
+        if(gt.gem2):
+            output_ = np.insert(output_, 10, data.lvX - data.rvX, axis = 0)
+            output_ = np.insert(output_, 11, data.lvY - data.rvY, axis = 0)
+            output_ = np.insert(output_, 12, data.lvZ - data.rvZ, axis = 0)
+            output_ = np.insert(output_, 13, data.lwX - data.rwX, axis = 0)
+            output_ = np.insert(output_, 14, data.lwY - data.rwY, axis = 0)
+            output_ = np.insert(output_, 15, data.lwZ - data.rwZ, axis = 0)
+            output_ = np.insert(output_, 16, data.laccX - data.raccX, axis = 0)
+            output_ = np.insert(output_, 17, data.laccY - data.raccY, axis = 0)
+            output_ = np.insert(output_, 18, data.laccZ - data.raccZ, axis = 0)
+            output_ = np.insert(output_, 19, data.accY, axis = 0)
+            output_ = np.insert(output_, 20, data.accZ, axis = 0)
+            output_ = np.insert(output_, 21, data.gX, axis = 0)
+            output_ = np.insert(output_, 22, data.gY, axis = 0)
+            output_ = np.insert(output_, 23, data.gZ, axis = 0)
         else:
-            output_ = np.append(output_, data.dcX, axis = 0)
-            output_ = np.append(output_, data.dcY, axis = 0)
-            output_ = np.append(output_, data.dcZ, axis = 0)
-            output_ = np.append(output_, data.lvX - data.rvX, axis = 0)
-            output_ = np.append(output_, data.lvY - data.rvY, axis = 0)
-            output_ = np.append(output_, data.lvZ - data.rvZ, axis = 0)
-            output_ = np.append(output_, data.lwX - data.rwX, axis = 0)
-            output_ = np.append(output_, data.lwY - data.rwY, axis = 0)
-            output_ = np.append(output_, data.lwZ - data.rwZ, axis = 0)
-            output_ = np.append(output_, data.laccX - data.raccX, axis = 0)
-            output_ = np.append(output_, data.laccY - data.raccY, axis = 0)
-            output_ = np.append(output_, data.laccZ - data.raccZ, axis = 0)
-            #output_ = np.append(output_, data.lgX - data.rgX, axis = 0)
-            #output_ = np.append(output_, data.lgY - data.rgY, axis = 0)
-            #output_ = np.append(output_, data.lgZ - data.rgZ, axis = 0)
-
-              
-
+            output_ = np.insert(output_, 10, data.accY, axis = 0)
+            output_ = np.insert(output_, 11, data.accZ, axis = 0)
+            output_ = np.insert(output_, 12, data.gX, axis = 0)
+            output_ = np.insert(output_, 13, data.gY, axis = 0)
+            output_ = np.insert(output_, 14, data.gZ, axis = 0)
         for i in range(self.data_train.shape[1]):
             output_[i] = self.normalize(output_[i],self.data_train_max[i], self.data_train_min[i])   
             #output_[i] = self.normalizeMean_data(output_[i],self.data_train_max[i], self.data_train_min[i], self.data_train_mean[i])   
@@ -877,15 +874,15 @@ class GEM2_data:
         self.laccX = 0
         self.laccY = 0
         self.laccZ = 0
-        # self.lgX = 0
-        # self.lgY = 0
-        # self.lgZ = 0
+        self.lgX = 0
+        self.lgY = 0
+        self.lgZ = 0
         self.raccX = 0
         self.raccY = 0
         self.raccZ = 0
-        # self.rgX = 0
-        # self.rgY = 0
-        # self.rgZ = 0
+        self.rgX = 0
+        self.rgY = 0
+        self.rgZ = 0
         self.dcX = 0
         self.dcY = 0
         self.dcZ = 0

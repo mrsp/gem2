@@ -38,6 +38,7 @@ import sys
 import yaml
 import os
 import pickle
+from gem2 import GEM2
 
 def load_config(config_file):
     with open(config_file, 'r') as stream:
@@ -50,11 +51,17 @@ def load_config(config_file):
 if __name__ == "__main__":
 	config = load_config(sys.argv[1])
 	robot = config['gem2_robot']
+	gt = pickle.load(open(robot + '_gem2_tools.sav', 'rb'))
 
+
+	g = GEM2()
+	g.setMethods(config['gem2_dim_reduction'], config['gem2_clustering'])
+	g.setFrames(config['gem2_lfoot_frame'], config['gem2_rfoot_frame'])
+	g.setParams(config['gem2_dim'], config['gem2'], config['gem2_robot'], config['gem2_load'])
 
 	#Load the Pre-Trained GEM Model
-	g = pickle.load(open(robot + '_gem2.sav', 'rb'))
 	gt = pickle.load(open(robot + '_gem2_tools.sav', 'rb'))
+	
 	data_train = gt.data_train
 	data_labels = gt.data_label
 	data_val = gt.data_val
@@ -62,10 +69,10 @@ if __name__ == "__main__":
 	out_path = os.path.dirname(os.path.realpath(__file__)) + "/" + config['gem2_train_path']
 
 	#Get the latent-data of GEM2
-	reduced_data_train =  g.reduced_data_train
+	reduced_data_train, predicted_labels_train, leg_probabilities =  g.predict_dataset(data_train)
+	
 	if(config['gem2']):
-		#Extract the leg probabilities
-		leg_probabilities = g.leg_probabilities
+		'''
 		if(not os.path.exists(out_path + "/" + "RLeg_probabilities.txt")):
 			fileObj = open(out_path+ "/" + "RLeg_probabilities.txt", "w")
 			np.savetxt(fileObj, leg_probabilities[:,1])
@@ -74,13 +81,12 @@ if __name__ == "__main__":
 			fileObj = open(out_path+ "/" + "LLeg_probabilities.txt", "w")
 			np.savetxt(fileObj, leg_probabilities[:,0])
 			fileObj.close()
-
+		'''
 
 		if(gt.useLabels):
 			gt.plot_accelerations_LR(leg_probabilities, data_labels)
 			#gt.plot_accelerations_LRD(g.leg_probabilities, data_labels,g.predicted_labels_train)
 
-	predicted_labels_train = g.predicted_labels_train
 	if(config['gem2_gt_comparison']):
 		gt.genGroundTruthStatistics(reduced_data_train)
 		gt.plot_results(reduced_data_train, gt.phase, gt.mean, gt.covariance, 'Ground-Truth Labels')
