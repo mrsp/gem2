@@ -46,7 +46,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Run in real-time to infer the gait-phase:
 * configure appropriately the config yaml file (in config folder) with the corresponding topics 
-* roslaunch gem2 gem2_ros.launch
+* roslaunch gem2_ros gem2_ros.launch
 
 ### GEM2 in base state estimation with SEROW and TALOS
 The estimated GEM2 gait-phase is employed in kinematic-inertial base state estimation with SEROW (https://github.com/mrsp/serow)
