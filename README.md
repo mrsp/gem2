@@ -25,17 +25,15 @@ Solely proprioceptive sensing is utilized in training, namely joint encoder, F/T
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ## Prerequisites
-* Ubuntu 18.04 and later
-* ROS melodic and later
+* Ubuntu 16.04 and later
+* ROS kinetic and later
 * Sklearn 
-* Keras 2.4.3 and later
 * tensorflow 
-* tested on python3 (3.8.5)
+* tested on  python (2.7.12, 2.7.17) and python3 (3.5.2, 3.6.9)
 
 ## Installing
-* pip install tensorflow
-* pip install keras
 * pip install sklearn
+* pip install tensorflow (or pip install tensorflow-gpu if an nvidia gpu is installed)
 * git clone https://github.com/mrsp/gem2.git
 * catkin_make
 * If you are using catkin tools run: catkin build  
