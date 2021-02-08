@@ -49,12 +49,12 @@ class GEM2():
     def __init__(self):
         self.firstrun = True
 	
-    def setParams(self, dim_, gem2, robot_, load_model_ = False):
+    def setParams(self, dim_, gem2, robot_, load_model_ = False, out_path = "."):
         self.latent_dim = dim_
         self.gem2 = gem2
         self.robot = robot_
         if(self.gem2):
-            self.input_dim = 24
+            self.input_dim = 21
         else:
             self.input_dim = 15
 
@@ -62,13 +62,12 @@ class GEM2():
 
 
         if(load_model_):
-            out_path = os.path.dirname(os.path.realpath(__file__))
             if self.red == 'pca':
-                self.pca = pickle.load(open(self.robot + 'pca.sav', 'rb'))
+                self.pca = pickle.load(open(out_path  +'/'+ self.robot + '_pca.sav', 'rb'))
             elif self.red == 'autoencoders':
                 self.ae = autoencoder()
                 self.ae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim)
-                self.ae = load_model(self.robot + '_AE')
+                self.ae = load_model(out_path  +'/'+self.robot + '_AE',compile=False)
             # self.vae = variationalAutoencoder()
             # self.vae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim)
             elif self.red == "supervisedAutoencoders":
@@ -77,7 +76,7 @@ class GEM2():
             # self.svae = supervisedVariationalAutoencoder()
             # self.svae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim, 2)
             elif self.red == "supervisedClassifier":
-                self.sc = load_model(self.robot + '_SC')
+                self.sc = load_model(out_path+'/'+self.robot + '_SC',compile=False)
         
             if self.cl == 'gmm':
                 self.gmm = pickle.load(open(out_path+'/'+self.robot + '_gmm.sav', 'rb'))
@@ -154,6 +153,7 @@ class GEM2():
 
     def predict(self, data_):
         leg_probabilities = None
+        support_leg = None
         if(self.red == 'pca'):
             reduced_data = self.pca.transform(data_.reshape(1,-1))
         elif(self.red == 'autoencoders'):
@@ -192,6 +192,7 @@ class GEM2():
 
 
     def predict_dataset(self, data_):
+        leg_probabilities = None
         if(self.red == 'pca'):
             reduced_data = self.pca.transform(data_)
         elif(self.red == 'autoencoders'):
@@ -216,7 +217,7 @@ class GEM2():
         else:
             print('Unrecognired Clustering Method')       
 
-        return reduced_data, predicted_labels, leg_probabilities
+        return predicted_labels, reduced_data, leg_probabilities
 
     def reducePCA(self,data_train, save_model_):
         self.pca.fit(data_train)

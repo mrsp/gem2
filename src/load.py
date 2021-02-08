@@ -51,28 +51,28 @@ def load_config(config_file):
 if __name__ == "__main__":
 	config = load_config(sys.argv[1])
 	robot = config['gem2_robot']
-	gt = pickle.load(open(robot + '_gem2_tools.sav', 'rb'))
+
+	model_path = config['gem2_path_to_models']
+	gt = pickle.load(open(model_path + '/' + robot + '_gem2_tools.sav', 'rb'))
 
 
 	g = GEM2()
 	g.setMethods(config['gem2_dim_reduction'], config['gem2_clustering'])
 	g.setFrames(config['gem2_lfoot_frame'], config['gem2_rfoot_frame'])
-	g.setParams(config['gem2_dim'], config['gem2'], config['gem2_robot'], config['gem2_load'])
+	g.setParams(config['gem2_dim'], config['gem2'], config['gem2_robot'], True, model_path)
 
 	#Load the Pre-Trained GEM Model
-	gt = pickle.load(open(robot + '_gem2_tools.sav', 'rb'))
 	
 	data_train = gt.data_train
 	data_labels = gt.data_label
 	data_val = gt.data_val
 	data_val_labels = gt.data_val_label
-	out_path = os.path.dirname(os.path.realpath(__file__)) + "/" + config['gem2_train_path']
 
 	#Get the latent-data of GEM2
-	reduced_data_train, predicted_labels_train, leg_probabilities =  g.predict_dataset(data_train)
-	
+	predicted_labels,  reduced_data, leg_probabilities =  g.predict_dataset(data_train)
+	'''	
 	if(config['gem2']):
-		'''
+
 		if(not os.path.exists(out_path + "/" + "RLeg_probabilities.txt")):
 			fileObj = open(out_path+ "/" + "RLeg_probabilities.txt", "w")
 			np.savetxt(fileObj, leg_probabilities[:,1])
@@ -81,25 +81,20 @@ if __name__ == "__main__":
 			fileObj = open(out_path+ "/" + "LLeg_probabilities.txt", "w")
 			np.savetxt(fileObj, leg_probabilities[:,0])
 			fileObj.close()
-		'''
-
-		if(gt.useLabels):
-			gt.plot_accelerations_LR(leg_probabilities, data_labels)
-			#gt.plot_accelerations_LRD(g.leg_probabilities, data_labels,g.predicted_labels_train)
-
+	'''
 	if(config['gem2_gt_comparison']):
-		gt.genGroundTruthStatistics(reduced_data_train)
-		gt.plot_results(reduced_data_train, gt.phase, gt.mean, gt.covariance, 'Ground-Truth Labels')
+		gt.genGroundTruthStatistics(reduced_data)
+		gt.plot_results(reduced_data, gt.phase, gt.mean, gt.covariance, 'Ground-Truth Labels')
 		# gt.plot_latent_space(g)
-		cnf_matrix = confusion_matrix(gt.phase,  predicted_labels_train)
+		cnf_matrix = confusion_matrix(gt.phase,  predicted_labels)
 		np.set_printoptions(precision=2)
 		class_names = ['RSS','DS','LSS']
 		gt.plot_confusion_matrix(cnf_matrix, class_names, 'GMMs Confusion Matrix')
 
 		
 	if(config['gem2_clustering'] == "kmeans"):
-		gt.plot_results(reduced_data_train, predicted_labels_train, g.kmeans.cluster_centers_, None, 'Clustering with K-means')
+		gt.plot_results(reduced_data, predicted_labels, g.kmeans.cluster_centers_, None, 'Clustering with K-means')
 	elif(config['gem2_clustering'] == "gmm"):
-		gt.plot_results(reduced_data_train, predicted_labels_train, g.gmm.means_, g.gmm.covariances_, 'Clustering with Gaussian Mixture Models')
+		gt.plot_results(reduced_data, predicted_labels, g.gmm.means_, g.gmm.covariances_, 'Clustering with Gaussian Mixture Models')
 	else:
 		print("Unsupported Result Plotting")

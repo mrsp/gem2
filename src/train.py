@@ -54,10 +54,10 @@ def load_config(config_file):
 if __name__ == "__main__":
 
 	config = load_config(sys.argv[1])
-	train_path =  os.path.dirname(os.path.realpath(__file__)) + "/" + config['gem2_train_path']
-	val_path =  os.path.dirname(os.path.realpath(__file__)) + "/" + config['gem2_validation_path']
+	train_path =   config['gem2_train_path']
+	val_path =    config['gem2_validation_path']
 	robot = config['gem2_robot']
-	gt = GEM2_tools(validation = config['gem2_validation'], gt_comparison=config['gem2_gt_comparison'], gem2=config['gem2'], useLabels = config['useLabels'])
+	gt = GEM2_tools(validation = config['gem2_validation'], gt_comparison=config['gem2_gt_comparison'], gem2=config['gem2'])
 	gt.input_data(train_path,val_path)
 
 
@@ -73,10 +73,6 @@ if __name__ == "__main__":
 
 
 	g.fit(data_train, data_val, config['gem2_save'], data_labels, data_val_labels)
-	#if(gt.useLabels):
-		#gt.plot_accelerations_LR(g.leg_probabilities, data_labels)
-		#gt.plot_accelerations_LRD(g.leg_probabilities, data_labels,g.predicted_labels_train)
-
 
 
 	if(config['gem2_plot_results']):

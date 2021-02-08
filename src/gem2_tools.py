@@ -63,11 +63,10 @@ params = {
 plt.rcParams.update(params)
 
 class GEM2_tools():
-    def __init__(self, validation = False, gt_comparison=False, gem2 = True, useLabels = True):
+    def __init__(self, validation = False, gt_comparison=False, gem2 = True):
         self.gt_comparison = gt_comparison
         self.validation = validation
         self.gem2 = gem2
-        self.useLabels = useLabels
 
 
     def input_data(self, training_path, validation_path):
@@ -140,16 +139,14 @@ class GEM2_tools():
             rwX = np.loadtxt(training_path+'/rwX.txt')
             rwY = np.loadtxt(training_path+'/rwY.txt')
             rwZ = np.loadtxt(training_path+'/rwZ.txt')
-            laccX = np.loadtxt(training_path+'/laccX.txt')
-            laccY = np.loadtxt(training_path+'/laccY.txt')
-            laccZ = np.loadtxt(training_path+'/laccZ.txt')
-            dlen = min(dlen,np.size(laccZ))
-            raccX = np.loadtxt(training_path+'/raccX.txt')
-            raccY = np.loadtxt(training_path+'/raccY.txt')
-            raccZ = np.loadtxt(training_path+'/raccZ.txt')
-            dlen = min(dlen,np.size(raccZ))
-   
-        if(self.useLabels):
+            #laccX = np.loadtxt(training_path+'/laccX.txt')
+            #laccY = np.loadtxt(training_path+'/laccY.txt')
+            #laccZ = np.loadtxt(training_path+'/laccZ.txt')
+            #dlen = min(dlen,np.size(laccZ))
+            #raccX = np.loadtxt(training_path+'/raccX.txt')
+            #raccY = np.loadtxt(training_path+'/raccY.txt')
+            #raccZ = np.loadtxt(training_path+'/raccZ.txt')
+            #dlen = min(dlen,np.size(raccZ))
             baccX_LL = np.loadtxt(training_path+'/baccX_LL.txt')
             baccY_LL = np.loadtxt(training_path+'/baccY_LL.txt')
             baccZ_LL = np.loadtxt(training_path+'/baccZ_LL.txt')
@@ -214,16 +211,14 @@ class GEM2_tools():
                 rwX_val = np.loadtxt(validation_path+'/rwX.txt')
                 rwY_val = np.loadtxt(validation_path+'/rwY.txt')
                 rwZ_val = np.loadtxt(validation_path+'/rwZ.txt')
-                laccX_val = np.loadtxt(validation_path+'/laccX.txt')
-                laccY_val = np.loadtxt(validation_path+'/laccY.txt')
-                laccZ_val = np.loadtxt(validation_path+'/laccZ.txt')
-                dlen_val = min(dlen_val,np.size(laccZ_val))
-                raccX_val = np.loadtxt(validation_path+'/raccX.txt')
-                raccY_val = np.loadtxt(validation_path+'/raccY.txt')
-                raccZ_val = np.loadtxt(validation_path+'/raccZ.txt')
-                dlen_val = min(dlen_val,np.size(raccZ_val))
-
-            if(self.useLabels):
+                #laccX_val = np.loadtxt(validation_path+'/laccX.txt')
+                #laccY_val = np.loadtxt(validation_path+'/laccY.txt')
+                #laccZ_val = np.loadtxt(validation_path+'/laccZ.txt')
+                #dlen_val = min(dlen_val,np.size(laccZ_val))
+                #raccX_val = np.loadtxt(validation_path+'/raccX.txt')
+                #raccY_val = np.loadtxt(validation_path+'/raccY.txt')
+                #raccZ_val = np.loadtxt(validation_path+'/raccZ.txt')
+                #dlen_val = min(dlen_val,np.size(raccZ_val))
                 baccX_LL_val = np.loadtxt(validation_path+'/baccX_LL.txt')
                 baccY_LL_val = np.loadtxt(validation_path+'/baccY_LL.txt')
                 baccZ_LL_val = np.loadtxt(validation_path+'/baccZ_LL.txt')
@@ -233,7 +228,6 @@ class GEM2_tools():
                 baccX_val = np.loadtxt(validation_path+'/baccX.txt')
                 baccY_val = np.loadtxt(validation_path+'/baccY.txt')
                 baccZ_val = np.loadtxt(validation_path+'/baccZ.txt')
-
                 bgX_LL_val = np.loadtxt(training_path+'/bgX_LL.txt')
                 bgY_LL_val = np.loadtxt(training_path+'/bgY_LL.txt')
                 bgZ_LL_val = np.loadtxt(training_path+'/bgZ_LL.txt')
@@ -243,8 +237,6 @@ class GEM2_tools():
                 bgX_val = np.loadtxt(training_path+'/bgX.txt')
                 bgY_val = np.loadtxt(training_path+'/bgY.txt')
                 bgZ_val = np.loadtxt(training_path+'/bgZ.txt')
-
-
                 dlen_val = min(dlen_val,min(np.size(bgZ_LL_val),np.size(baccZ_RL_val)))
             
 
@@ -275,12 +267,11 @@ class GEM2_tools():
             self.data_train = np.column_stack([self.data_train, lwY[0:dlen] - rwY[0:dlen]])
             self.data_train = np.column_stack([self.data_train, lwZ[0:dlen] - rwZ[0:dlen]])
             #Leg Linear Acceleration
-            self.data_train = np.column_stack([self.data_train, laccX[0:dlen] - raccX[0:dlen]])
-            self.data_train = np.column_stack([self.data_train, laccY[0:dlen] - raccY[0:dlen]])
-            self.data_train = np.column_stack([self.data_train, laccZ[0:dlen] - raccZ[0:dlen]])
+            #self.data_train = np.column_stack([self.data_train, laccX[0:dlen] - raccX[0:dlen]])
+            #self.data_train = np.column_stack([self.data_train, laccY[0:dlen] - raccY[0:dlen]])
+            #self.data_train = np.column_stack([self.data_train, laccZ[0:dlen] - raccZ[0:dlen]])
 
         #Base/Legs Acceleration as labels
-        if(self.useLabels):
             self.data_label = bgX_LL[0:dlen]
             self.data_label = np.column_stack([self.data_label, bgY_LL[0:dlen]])
             self.data_label = np.column_stack([self.data_label, bgZ_LL[0:dlen]])
@@ -374,13 +365,12 @@ class GEM2_tools():
                 self.data_val = np.column_stack([self.data_val, lwY_val[0:dlen_val] - rwY_val[0:dlen_val]])
                 self.data_val = np.column_stack([self.data_val, lwZ_val[0:dlen_val] - rwZ_val[0:dlen_val]])
                 #Leg Linear Acceleration
-                self.data_val = np.column_stack([self.data_val, laccX_val[0:dlen_val] - raccX_val[0:dlen_val]])
-                self.data_val = np.column_stack([self.data_val, laccY_val[0:dlen_val] - raccY_val[0:dlen_val]])
-                self.data_val = np.column_stack([self.data_val, laccZ_val[0:dlen_val] - raccZ_val[0:dlen_val]])
+                #self.data_val = np.column_stack([self.data_val, laccX_val[0:dlen_val] - raccX_val[0:dlen_val]])
+                #self.data_val = np.column_stack([self.data_val, laccY_val[0:dlen_val] - raccY_val[0:dlen_val]])
+                #self.data_val = np.column_stack([self.data_val, laccZ_val[0:dlen_val] - raccZ_val[0:dlen_val]])
 
 
             #Base/Legs Acceleration as labels
-            if(self.useLabels):
                 self.data_val_label = bgX_LL_val[0:dlen_val]    
                 self.data_val_label = np.column_stack([self.data_val_label, bgY_LL_val[0:dlen_val]])
                 self.data_val_label = np.column_stack([self.data_val_label, bgZ_LL_val[0:dlen_val]])
@@ -514,14 +504,14 @@ class GEM2_tools():
             output_ = np.insert(output_, 13, data.lwX - data.rwX, axis = 0)
             output_ = np.insert(output_, 14, data.lwY - data.rwY, axis = 0)
             output_ = np.insert(output_, 15, data.lwZ - data.rwZ, axis = 0)
-            output_ = np.insert(output_, 16, data.laccX - data.raccX, axis = 0)
-            output_ = np.insert(output_, 17, data.laccY - data.raccY, axis = 0)
-            output_ = np.insert(output_, 18, data.laccZ - data.raccZ, axis = 0)
-            output_ = np.insert(output_, 19, data.accY, axis = 0)
-            output_ = np.insert(output_, 20, data.accZ, axis = 0)
-            output_ = np.insert(output_, 21, data.gX, axis = 0)
-            output_ = np.insert(output_, 22, data.gY, axis = 0)
-            output_ = np.insert(output_, 23, data.gZ, axis = 0)
+            #output_ = np.insert(output_, 16, data.laccX - data.raccX, axis = 0)
+            #output_ = np.insert(output_, 17, data.laccY - data.raccY, axis = 0)
+            #output_ = np.insert(output_, 18, data.laccZ - data.raccZ, axis = 0)
+            output_ = np.insert(output_, 16, data.accY, axis = 0)
+            output_ = np.insert(output_, 17, data.accZ, axis = 0)
+            output_ = np.insert(output_, 18, data.gX, axis = 0)
+            output_ = np.insert(output_, 19, data.gY, axis = 0)
+            output_ = np.insert(output_, 20, data.gZ, axis = 0)
         else:
             output_ = np.insert(output_, 10, data.accY, axis = 0)
             output_ = np.insert(output_, 11, data.accZ, axis = 0)
@@ -871,18 +861,18 @@ class GEM2_data:
         self.gX = 0
         self.gY = 0
         self.gZ = 0
-        self.laccX = 0
-        self.laccY = 0
-        self.laccZ = 0
-        self.lgX = 0
-        self.lgY = 0
-        self.lgZ = 0
-        self.raccX = 0
-        self.raccY = 0
-        self.raccZ = 0
-        self.rgX = 0
-        self.rgY = 0
-        self.rgZ = 0
+        #self.laccX = 0
+        #self.laccY = 0
+        #self.laccZ = 0
+        #self.lgX = 0
+        #self.lgY = 0
+        #self.lgZ = 0
+        #self.raccX = 0
+        #self.raccY = 0
+        #self.raccZ = 0
+        #self.rgX = 0
+        #self.rgY = 0
+        #self.rgZ = 0
         self.dcX = 0
         self.dcY = 0
         self.dcZ = 0
