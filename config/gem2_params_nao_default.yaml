@@ -1,0 +1,32 @@
+#Common Configuration Parameters
+gem2_robot: "nao"
+gem2_freq: 100    #min freq of all topics
+gem2_lfoot_frame: "l_ankle"   #left foot frame 
+gem2_rfoot_frame: "r_ankle"   #right foot frame 
+
+#Gait Phase Learning/Inferecing Parameters
+#Topics for real-time inferecing with ROS 
+gem2_imu_topic: "/gem2/rel_base_imu" # base_link (body) IMU
+gem2_com_velocity_topic: "/gem2/rel_CoM_velocity"  #relative to base_link (body) CoM linear velocity - computed with kinematics
+gem2_left_leg_wrench_topic: "/gem2/rel_LLeg_wrench" #relative to base_link (body) Left Leg F/T
+gem2_right_leg_wrench_topic: "/gem2/rel_RLeg_wrench" #relative to base_link (body) Right Leg F/T
+gem2_left_leg_velocity_topic: "/gem2/rel_LLeg_velocity" #relative to base_link (body) Left Leg velocity - computed with kinematics
+gem2_right_leg_velocity_topic: "/gem2/rel_RLeg_velocity" #relative to base_link (body) Right Leg velocity - computed with kinematics
+
+#Training Methods
+gem2_dim_reduction: "pca"
+#gem2_dim_reduction: "supervisedAutoencoders"
+#gem2_dim_reduction: "autoencoders"
+#gem2_dim_reduction: "supervisedClassifier" 
+gem2_clustering: "gmm" #gmm or kmeans supported at the current time
+
+#GEM2 Parameters
+gem2: False #If False gem1 is used instead
+gem2_validation: True
+gem2_plot_results: True #plot the results only works when Dimensionality Reduction is performed
+gem2_dim: 2 #Specify only if gem2 is False
+gem2_train_path: "/home/master/catkin_ws/src/gem2/GEM2_nao_training" #path to training data, data must have same(or approx. same) sampling rate e.g. gem2_freq.
+gem2_validation_path: "/home/master/catkin_ws/src/gem2/GEM2_nao_validation/NAO2"  #path to validation data data must have same(or approx. same) sampling rate e.g. gem2_freq.
+gem2_path_to_models: "/home/master/catkin_ws/src/gem2/src/models" #path to save/load training model.
+gem2_gt_comparison: False  #compare to ground-truth gait-phases supplied by the user.
+gem2_save: True  #Save the training results to load a model in real-time.

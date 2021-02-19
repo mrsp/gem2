@@ -69,15 +69,15 @@ class  gem2_ros():
 		self.support_leg = "None"
 		robot = rospy.get_param('gem2_robot','nao')
 		print('Loading the GEM2 Models')
-		imu_topic = rospy.get_param('gem2_base_imu_topic','/gem/rel_base_imu')
+		imu_topic = rospy.get_param('gem2_base_imu_topic','/gem2/rel_base_imu')
 		#limu_topic = rospy.get_param('gem2_left_leg_imu_topic','/gem/rel_LLeg_imu')
 		#rimu_topic = rospy.get_param('gem2_right_leg_imu_topic','/gem/rel_RLeg_imu')
 
-		vcom_topic = rospy.get_param('gem2_com_velocity_topic','/gem/rel_CoM_velocity')
-		lft_topic = rospy.get_param('gem2_left_leg_wrench_topic','/gem/rel_LLeg_wrench')
-		rft_topic = rospy.get_param('gem2_right_leg_wrench_topic','/gem/rel_RLeg_wrench')
-		lvel_topic = rospy.get_param('gem2_left_leg_velocity_topic','/gem/rel_LLeg_velocity')
-		rvel_topic = rospy.get_param('gem2_right_leg_velocity_topic','/gem/rel_RLeg_velocity')
+		vcom_topic = rospy.get_param('gem2_com_velocity_topic','/gem2/rel_CoM_velocity')
+		lft_topic = rospy.get_param('gem2_left_leg_wrench_topic','/gem2/rel_LLeg_wrench')
+		rft_topic = rospy.get_param('gem2_right_leg_wrench_topic','/gem2/rel_RLeg_wrench')
+		lvel_topic = rospy.get_param('gem2_left_leg_velocity_topic','/gem2/rel_LLeg_velocity')
+		rvel_topic = rospy.get_param('gem2_right_leg_velocity_topic','/gem2/rel_RLeg_velocity')
 
 
 		self.vcom_sub  = rospy.Subscriber(vcom_topic,TwistStamped, self.vcomcb)
