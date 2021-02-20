@@ -7,9 +7,8 @@ clc
 %Set the required paths
 saveData = 1;
 useGT = 0;
-pathTorosbag = 'C:\Users\stpip\Desktop\naoICRA2kaloGEM.bag';
-%saveDir = '../NAO_GEM2/IMU_INTEL/SimpleMotions/back2';
-saveDir = 'C:\Users\stpip\Desktop\NAO_ICRA2021';
+pathTorosbag = 'D:\NEW_NAO_GEM2_DATA\walkGEM.bag';
+saveDir = 'C:\Users\stpip\Desktop\NAO_ICRA2021\walkGEM';
 
 if(saveData == 1)
     if ~exist(saveDir, 'dir')
@@ -19,18 +18,18 @@ if(saveData == 1)
     end
 end
 %Set the required topics
-imu_topic = '/gem/rel_base_imu';
-lft_topic = '/gem/rel_LLeg_wrench';
-rft_topic = '/gem/rel_RLeg_wrench';
-limu_topic = '/gem/rel_LLeg_imu';
-rimu_topic = '/gem/rel_RLeg_imu';
-com_topic = '/gem/rel_CoM_position';
-vcom_topic = '/gem/rel_CoM_velocity';
-lvel_topic = '/gem/rel_LLeg_velocity';
-rvel_topic = '/gem/rel_RLeg_velocity';
-lpose_topic = '/gem/rel_LLeg_pose';
-rpose_topic = '/gem/rel_RLeg_pose';
-gt_topic = '/gem/ground_truth/gait_phase';
+imu_topic = '/gem2/rel_base_imu';
+lft_topic = '/gem2/rel_LLeg_wrench';
+rft_topic = '/gem2/rel_RLeg_wrench';
+limu_topic = '/gem2/rel_LLeg_imu';
+rimu_topic = '/gem2/rel_RLeg_imu';
+com_topic = '/gem2/rel_CoM_position';
+vcom_topic = '/gem2/rel_CoM_velocity';
+lvel_topic = '/gem2/rel_LLeg_velocity';
+rvel_topic = '/gem2/rel_RLeg_velocity';
+lpose_topic = '/gem2/rel_LLeg_pose';
+rpose_topic = '/gem2/rel_RLeg_pose';
+gt_topic = '/gem2/ground_truth/gait_phase';
 
 
 

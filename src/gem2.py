@@ -99,7 +99,7 @@ class GEM2():
                 self.sc = supervisedClassifier()
                 self.sc.setDimensions(self.input_dim, self.latent_dim, self.intermidiate_dim)
             if self.cl == 'gmm':
-                self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='full', max_iter=200, tol=5.0e-2, init_params = 'kmeans', n_init=50,warm_start=False,verbose=1)
+                self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='full', max_iter=200, tol=1.0e-3, init_params = 'kmeans', n_init=50,warm_start=False,verbose=1)
             elif self.cl == 'kmeans':
                 self.kmeans = KMeans(init='k-means++',n_clusters=3, n_init=500,tol=1.0e-3)
 
@@ -222,8 +222,8 @@ class GEM2():
     def reducePCA(self,data_train, save_model_):
         self.pca.fit(data_train)
         if(save_model_):
- 		    with open(self.robot + '_pca.sav', 'wb') as file:
-			    pickle.dump(self.pca, file)       
+            with open(self.robot + '_pca.sav', 'wb') as file:
+                pickle.dump(self.pca, file)       
         self.reduced_data_train = self.pca.transform(data_train)
         print("Explained variance ratio")
         print(self.pca.explained_variance_ratio_)
@@ -237,7 +237,7 @@ class GEM2():
             self.ae.encoder.save(self.robot + '_AE')
 
     def reduceSAE(self,data_train,data_labels,data_validation,data_validation_labels, save_model_):
-        self.sae.fit(data_train,data_labels,data_validation, data_validation_labels, 1, 1)
+        self.sae.fit(data_train,data_labels,data_validation, data_validation_labels, 150, 2)
         self.reduced_data_train =  self.sae.model.predict(data_train)[1]
         self.leg_probabilities = self.sae.model.predict(data_train)[2]
         if(save_model_):
@@ -264,16 +264,16 @@ class GEM2():
     def clusterGMM(self, save_model_):
         self.gmm.fit(self.reduced_data_train)
         if(save_model_):
- 		    with open(self.robot + '_gmm.sav', 'wb') as file:
-			    pickle.dump(self.gmm, file)
+            with open(self.robot + '_gmm.sav', 'wb') as file:
+                pickle.dump(self.gmm, file)
         self.predicted_labels_train = self.gmm.predict(self.reduced_data_train)
 
 
     def clusterKMeans(self, save_model_):
         self.kmeans.fit(self.reduced_data_train)
         if(save_model_):
- 		    with open(self.robot + '_kmeans.sav', 'wb') as file:
-			    pickle.dump(self.kmeans, file)
+            with open(self.robot + '_kmeans.sav', 'wb') as file:
+                pickle.dump(self.kmeans, file)
         self.predicted_labels_train = self.kmeans.predict(self.reduced_data_train)
 
     # def getSupportLeg(self):

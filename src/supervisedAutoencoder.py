@@ -104,19 +104,19 @@ class supervisedAutoencoder():
     
         '''
 
-        wx = 0.25 * K.abs(y_true[:, 6] - ((y_pred[:, 0]*y_true[:, 0] +
-                                        y_pred[:, 1]*y_true[:, 3])/(y_pred[:, 0]+y_pred[:, 1])))
+        wx = 1.0 * K.abs(y_true[:, 6] - ((y_pred[:, 0]*y_true[:, 0] +
+                                        y_pred[:, 1]*y_true[:, 3])))
         wy = 1.0 * K.abs(y_true[:, 7] - ((y_pred[:, 0]*y_true[:, 1] +
-                                        y_pred[:, 1]*y_true[:, 4])/(y_pred[:, 0]+y_pred[:, 1])))
-        wz = 0.5 * K.abs(y_true[:, 8] - ((y_pred[:, 0]*y_true[:, 2] +
-                                        y_pred[:, 1]*y_true[:, 5])/(y_pred[:, 0]+y_pred[:, 1])))
+                                        y_pred[:, 1]*y_true[:, 4])))
+        wz = 1.0 * K.abs(y_true[:, 8] - ((y_pred[:, 0]*y_true[:, 2] +
+                                        y_pred[:, 1]*y_true[:, 5])))
 
-        ax = 0.25 * K.abs(y_true[:, 15] - ((y_pred[:, 0]*y_true[:, 9] +
-                                            y_pred[:, 1]*y_true[:, 12]) / (y_pred[:, 0]+y_pred[:, 1])))
+        ax = 1.0 * K.abs(y_true[:, 15] - ((y_pred[:, 0]*y_true[:, 9] +
+                                            y_pred[:, 1]*y_true[:, 12]) ))
         ay = 1.0 * K.abs(y_true[:, 16] - ((y_pred[:, 0]*y_true[:, 10] +
-                                        y_pred[:, 1]*y_true[:, 13]) / (y_pred[:, 0]+y_pred[:, 1])))
-        az = 0.5 * K.abs(y_true[:, 17] - ((y_pred[:, 0]*y_true[:, 11] +
-                                        y_pred[:, 1]*y_true[:, 14]) / (y_pred[:, 0]+y_pred[:, 1])))
+                                        y_pred[:, 1]*y_true[:, 13]) ))
+        az = 1.0 * K.abs(y_true[:, 17] - ((y_pred[:, 0]*y_true[:, 11] +
+                                        y_pred[:, 1]*y_true[:, 14]) ))
 
         '''
         
@@ -138,18 +138,20 @@ class supervisedAutoencoder():
         sae_input = Input(shape=(input_dim,), name='input')
         # this model maps an input to its encoded representation
         #encoded = Dense(15, activation='tanh', name='encode_0')(sae_input)
-        encoded = Dense(intermediate_dim, activation='selu',
+        encoded = Dense(intermediate_dim, activation='tanh',
                         name='encode_1')(sae_input)
         #encoded = Dense(2, activation='selu', name='encode_2')(encoded)
-        encoded = Dense(2, activation='selu', name='class_output',
-                        kernel_initializer='random_normal')(encoded)
-        predicted = encoded
-        self.encoder = Model(sae_input, encoded)
+        initializer = tf.keras.initializers.Ones()
+        predicted = Dense(2, activation='sigmoid', name='class_output',
+                        kernel_initializer=initializer)(encoded)
+        encoded = predicted
+        #predicted = encoded
+        self.encoder = Model(sae_input, predicted)
         # Reconstruction Decoder: Latent to input
-        decoded = Dense(intermediate_dim, activation='selu',
-                        name='decode_1')(encoded)
+        decoded = Dense(intermediate_dim, activation='tanh',
+                        name='decode_1')(predicted)
         #decoded = Dense(15, activation='tanh', name='decode_2')(decoded)
-        decoded = Dense(input_dim, activation='selu',
+        decoded = Dense(input_dim, activation='tanh',
                         name='reconst_output')(decoded)
         # Take input and give classification and reconstruction
         self.model = Model(inputs=[sae_input], outputs=[

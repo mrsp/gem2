@@ -70,9 +70,10 @@ if __name__ == "__main__":
 
 	#Get the latent-data of GEM2
 	predicted_labels,  reduced_data, leg_probabilities =  g.predict_dataset(data_train)
-	'''	
+	
 	if(config['gem2']):
-
+		gt.plot_accelerations_LR(leg_probabilities,data_labels)
+		'''
 		if(not os.path.exists(out_path + "/" + "RLeg_probabilities.txt")):
 			fileObj = open(out_path+ "/" + "RLeg_probabilities.txt", "w")
 			np.savetxt(fileObj, leg_probabilities[:,1])
@@ -81,7 +82,7 @@ if __name__ == "__main__":
 			fileObj = open(out_path+ "/" + "LLeg_probabilities.txt", "w")
 			np.savetxt(fileObj, leg_probabilities[:,0])
 			fileObj.close()
-	'''
+		'''
 	if(config['gem2_gt_comparison']):
 		gt.genGroundTruthStatistics(reduced_data)
 		gt.plot_results(reduced_data, gt.phase, gt.mean, gt.covariance, 'Ground-Truth Labels')

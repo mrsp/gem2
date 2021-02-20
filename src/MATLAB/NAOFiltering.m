@@ -25,10 +25,6 @@ lwf = butterworth2(lw,fc,fs);
 rwf  = butterworth2(rw,fc,fs);
 fc = 10;
 gyrof = butterworth2(gyro,fc,fs);
-figure
-plot(gyro(:,2),'red','linewidth',1);
-hold on
-plot(gyrod(:,2),'blue','linewidth',1);
 gyrodotf = diff([0,0,0;gyrof]*fs);
 lwf_est = lgyroBf - gyrof;
 rwf_est = rgyroBf - gyrof;
@@ -36,19 +32,18 @@ rwf_est = rgyroBf - gyrof;
 % plot(lwf(:,1),'black');
 % hold on
 % plot(lwf_est(:,1),'blue');
-
+% 
 
 figure
-plot(gyrof(:,1),'black','linewidth',1);
+plot(gyrof(:,3),'black','linewidth',1);
 hold on
-plot(-rwf_est(:,1),'red');
+plot(-rwf_est(:,3),'red');
 hold on
-plot(-lwf_est(:,1),'green');
+plot(-lwf_est(:,3),'green');
 %% Filter the Linear Acceleration Measurements
 fc = 7.0;
 accf = butterworth2(acc,fc,fs);
-%accd = delayseq(accf,1);
-accd = accf;
+
 % figure
 % plot(acc(:,3))
 % hold on
@@ -81,16 +76,16 @@ raccBf  = butterworth2(raccB,fc,fs);
 % plot(raccB(:,3))
 
 
-laf_est = laccBf - accf - cross(gyrodotf,lpos) - cross(gyrod,lv); 
-raf_est = raccBf - accf - cross(gyrodotf,rpos) - cross(gyrod,lv); 
-acc_LLeg_est = -laf_est - cross(gyrodotf,lpos) - cross(gyrod,lv); 
-acc_RLeg_est = -raf_est - cross(gyrodotf,rpos) - cross(gyrod,rv); 
+laf_est = laccBf - accf - cross(gyrodotf,lpos) - cross(gyrof,lv); 
+raf_est = raccBf - accf - cross(gyrodotf,rpos) - cross(gyrof,lv); 
+acc_LLeg_est = -laf_est - cross(gyrodotf,lpos) - cross(gyrof,lv); 
+acc_RLeg_est = -raf_est - cross(gyrodotf,rpos) - cross(gyrof,rv); 
 figure
-plot(accf(:,3),'black');
+plot(accf(:,1),'black');
 hold on
-plot(acc_LLeg_est(:,3),'green');
+plot(acc_LLeg_est(:,1),'green');
 hold on
-plot(acc_RLeg_est(:,3),'red');
+plot(acc_RLeg_est(:,1),'red');
 
 %% Save Data
 if(saveData == 1)
