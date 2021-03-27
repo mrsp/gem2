@@ -69,10 +69,14 @@ if __name__ == "__main__":
 	data_val_labels = gt.data_val_label
 
 	#Get the latent-data of GEM2
-	predicted_labels,  reduced_data, leg_probabilities =  g.predict_dataset(data_train)
+	predicted_labels,  reduced_data, leg_probabilities, reconstructed_input =  g.predict_dataset(data_train)
 	
+
+	gt.plot_reconstruction(data_train, reconstructed_input)
 	if(config['gem2']):
-		gt.plot_accelerations_LR(leg_probabilities,data_labels)
+		#gt.plot_accelerations_LR(leg_probabilities,data_train)
+		gt.plot_accelerations_LRD(leg_probabilities,predicted_labels,data_train[:,0:3])
+
 		'''
 		if(not os.path.exists(out_path + "/" + "RLeg_probabilities.txt")):
 			fileObj = open(out_path+ "/" + "RLeg_probabilities.txt", "w")

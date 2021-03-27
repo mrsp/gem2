@@ -26,7 +26,7 @@ gem2_validation: True
 gem2_plot_results: True #plot the results only works when Dimensionality Reduction is performed
 gem2_dim: 2 #Specify only if gem2 is False
 gem2_train_path: "/home/master/catkin_ws/src/gem2/GEM2_nao_training" #path to training data, data must have same(or approx. same) sampling rate e.g. gem2_freq.
-gem2_validation_path: "/home/master/catkin_ws/src/gem2/GEM2_nao_validation/NAO2"  #path to validation data data must have same(or approx. same) sampling rate e.g. gem2_freq.
+gem2_validation_path: "/home/master/catkin_ws/src/gem2/GEM2_nao_validation/walkTurnGEM"  #path to validation data data must have same(or approx. same) sampling rate e.g. gem2_freq.
 gem2_path_to_models: "/home/master/catkin_ws/src/gem2/src/models" #path to save/load training model.
 gem2_gt_comparison: False  #compare to ground-truth gait-phases supplied by the user.
 gem2_save: True  #Save the training results to load a model in real-time.

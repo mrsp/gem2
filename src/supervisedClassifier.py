@@ -31,7 +31,9 @@
 
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Sequential, Model,load_model, save_model
-from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.layers import Input, Dense, Lambda, concatenate
+import tensorflow as tf
+
 import tempfile
 import os
 # Hotfix function
@@ -67,26 +69,54 @@ class supervisedClassifier():
 
 
 
-    def clf_loss(self, y_true, y_pred):
-        #x  = 1.0 * K.square(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
-        #y  = 1.0 * K.square(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
-        #z  = 1.0 * K.square(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
-        #loss = K.mean(K.sqrt(x + y + z + K.epsilon()))
-        x  = 0.4 * K.abs(y_true[:,6] - (y_pred[:,0]*y_true[:,0] + y_pred[:,1]*y_true[:,3]))
-        y  = 0.4 * K.abs(y_true[:,7] - (y_pred[:,0]*y_true[:,1] + y_pred[:,1]*y_true[:,4]))
-        z  = 0.2 * K.abs(y_true[:,8] - (y_pred[:,0]*y_true[:,2] + y_pred[:,1]*y_true[:,5]))
-        loss = K.mean(x + y + z)
+    def LLeg_loss(self, y_true, y_pred):
+        wx = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 0])
+        wy = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 1])
+        wz = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 2])
+
+        ax = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 9])
+        ay = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 10])
+        az = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 11])
+        loss = K.mean(ax*ay*az*wx*wy*wz)
+
         return loss
 
-    def setDimensions(self, input_dim_, latent_dim, intermediate_dim):
-        self.model = Sequential()
-        self.model.add(Dense(20, activation='tanh', use_bias = False, input_dim=input_dim_))
-        self.model.add(Dense(intermediate_dim, activation='tanh', use_bias = False))
-        self.model.add(Dense(latent_dim, activation='tanh', use_bias = True))
+    def RLeg_loss(self, y_true, y_pred):
+        wx = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 3])
+        wy = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 4])
+        wz = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 5])
+
+        ax = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 12])
+        ay = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 13])
+        az = 1.0 * K.abs(y_pred[:, 0] - y_true[:, 14])
+        loss = K.mean(ax*ay*az*wx*wy*wz)
+        return loss
+
+
+    def setDimensions(self, input_dim, latent_dim, intermediate_dim):
+        sc_input = Input(shape=(input_dim,), name='input')
+
+        #left_leg_input = Lambda(lambda x: x[:,0:12])(sc_input)
+        #right_leg_input = Lambda(lambda x: x[:,6:])(sc_input)
+
+        #h1_out = Dense(6, activation='selu')(left_leg_input)  # only connected to the second neuron
+        #h2_out = Dense(6, activation='selu')(right_leg_input)  # connected to both neurons
+
+        #initializer = tf.keras.initializers.Constant(0.5)
+
+        #outL = Dense(1, activation='sigmoid', name='LLeg_out', kernel_initializer=initializer, use_bias=False)(h1_out)
+        #outR = Dense(1, activation='sigmoid', name='RLeg_out', kernel_initializer=initializer, use_bias=False)(h2_out)
+        #output = concatenate([outL,outR])
+        
+
+         
+        hout= Dense(6, activation='sigmoid')(sc_input)  
+
+        initializer = tf.keras.initializers.Constant(0.5)
+        output = Dense(2, activation='sigmoid', kernel_initializer=initializer, use_bias=True)(hout)
+        self.model = Model(sc_input, output)
         # Compile the model
-        self.model.compile(optimizer='rmsprop', 
-                    loss=self.clf_loss, 
-)
+        self.model.compile(optimizer='adam', loss="mean_squared_logarithmic_error")
         #self.model.summary()
         self.firstrun = False
 

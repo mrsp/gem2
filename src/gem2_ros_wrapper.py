@@ -208,7 +208,7 @@ class  gem2_ros():
 			data.rwY = self.rvel.twist.angular.y
 			data.rwZ = self.rvel.twist.angular.z
 
-			self.phase, self.gait_phase_proba, self.reduced_data, self.leg_probabilities, self.support_leg = self.g.predict(self.gt.genInput(data,self.gt))
+			self.phase, self.gait_phase_proba, self.reduced_data, self.leg_probabilities, self.support_leg = self.g.predict(self.gt.genInput(data))
 			self.phase_msg.data = self.phase        	
 			self.phase_pub.publish(self.phase_msg)
 			self.phase_proba_msg.LSS_Probability.data = float(self.gait_phase_proba[0,1])

@@ -34,6 +34,7 @@
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Sequential, Model,load_model, save_model
 from tensorflow.keras.layers import Input, Dense
+import tensorflow as tf
 import tempfile
 import os
 # Hotfix function
@@ -74,16 +75,16 @@ class autoencoder():
     def setDimReduction(self, input_dim, latent_dim, intermediate_dim):
         input_= Input(shape=(input_dim,))
         # "encoded" is the encoded representation of the input
-        encoded = Dense(intermediate_dim, activation='linear',name='encode_1')(input_)
-        encoded = Dense(latent_dim, activation='linear',name='encode_2')(encoded)
-        decoded = Dense(intermediate_dim, activation='linear',name='decode_1')(encoded)
+        encoded = Dense(intermediate_dim, activation='tanh',name='encode_1')(input_)
+        encoded = Dense(latent_dim, activation='sigmoid',name='encode_2')(encoded)
+        decoded = Dense(intermediate_dim, activation='tanh',name='decode_1')(encoded)
         ## "decoded" is the lossy reconstruction of the input
-        decoded = Dense(input_dim, activation='linear',name='reconst_output')(decoded)
+        decoded = Dense(input_dim, activation='tanh',name='reconst_output')(decoded)
         # this model maps an input to its reconstruction
         self.model = Model(inputs=[input_], outputs=[decoded,encoded])
         # this model maps an input to its encoded representation
         self.encoder = Model(inputs=[input_], outputs=[encoded])
-        self.model.compile(optimizer='rmsprop', loss={"reconst_output":"mse"})
+        self.model.compile(optimizer='rmsprop', loss={"reconst_output":tf.keras.losses.LogCosh()})
         #self.model.summary()
         self.firstrun = False
 

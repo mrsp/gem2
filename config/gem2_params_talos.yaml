@@ -14,9 +14,9 @@ gem2_right_leg_velocity_topic: "/gem2/rel_RLeg_velocity" #relative to base_link 
 
 #Training Methods
 #gem2_dim_reduction: "pca"
-gem2_dim_reduction: "supervisedAutoencoders"
+#gem2_dim_reduction: "supervisedAutoencoders"
 #gem2_dim_reduction: "autoencoders"
-#gem2_dim_reduction: "supervisedClassifier" 
+gem2_dim_reduction: "supervisedClassifier" 
 gem2_clustering: "gmm" #gmm or kmeans supported at the current time
 
 #GEM2 Parameters
