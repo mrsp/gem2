@@ -38,6 +38,9 @@ from tensorflow.keras.layers import Input, Lambda, Dense, concatenate
 import tensorflow as tf
 import tempfile
 import os
+from tensorflow.keras.backend import sigmoid
+from tensorflow.keras.utils import get_custom_objects
+from tensorflow.keras.layers import Activation
 # Hotfix function
 def make_keras_picklable():
     def __getstate__(self):
@@ -65,8 +68,11 @@ def make_keras_picklable():
 class supervisedAutoencoder():
     def __init__(self):
         self.firstrun = True
+        #get_custom_objects().update({'swish': Activation(self.swish)})
         make_keras_picklable()
 
+    def swish(self,x, beta = 1):
+        return (x * sigmoid(beta * x))
 
     def rmse(self, y_true, y_pred):
         return K.sqrt(K.mean(K.square(y_pred - y_true)))
@@ -123,29 +129,31 @@ class supervisedAutoencoder():
     def setDimReduction(self, input_dim, latent_dim, intermediate_dim, num_classes):
         sae_input = Input(shape=(input_dim,), name='input')
         # this model maps an input to its encoded representation
-        encoded = Dense(6, activation='sigmoid',
+        encoded = Dense(8, activation='selu',
                         name='encode_1')(sae_input)
-        #encoded = Dense(2, activation='selu', name='encode_2')(encoded)
+        encoded = Dense(4, activation='selu',
+                        name='encode_2')(sae_input)
         initializer = tf.keras.initializers.Constant(0.5)
         predicted = Dense(2, activation='sigmoid', name='class_output',
-                        kernel_initializer=initializer, use_bias=True)(encoded)
+                        kernel_initializer=initializer)(encoded)
         encoded = predicted
         #predicted = encoded
         self.encoder = Model(sae_input, predicted)
         # Reconstruction Decoder: Latent to input
-        decoded = Dense(6, activation='sigmoid',
+        decoded = Dense(4, activation='selu',
                         name='decode_1')(predicted)
-
-        decoded = Dense(input_dim, activation='linear',
+        decoded = Dense(8, activation='selu',
+                        name='decode_2')(decoded)
+        decoded = Dense(input_dim, activation='selu',
                         name='reconst_output')(decoded)
         # Take input and give classification and reconstruction
-        self.model = Model(inputs=[sae_input], outputs=[
-                           decoded, encoded, predicted])
+        self.model = Model(inputs=[sae_input], outputs=[decoded, encoded, predicted])
         self.model.compile(optimizer='adam',
                            loss={'class_output': "mean_squared_logarithmic_error",
                                  'reconst_output': tf.keras.losses.LogCosh(reduction="auto", name="log_cosh")},
                            loss_weights={'class_output': 0.1,
-                                         'reconst_output': 1.0})
+                                         'reconst_output': 1.0}, 
+                            metrics={'class_output': tf.keras.metrics.RootMeanSquaredError(), 'reconst_output': tf.keras.metrics.RootMeanSquaredError()})
         # self.model.summary()
         self.firstrun = False
     def fit(self, x_train, y_train, x_validation, y_validation, epochs_, batch_size_):

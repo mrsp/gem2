@@ -69,16 +69,19 @@ class GEM2():
                 self.ae = autoencoder()
                 self.ae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim)
                 self.ae = load_model(out_path  +'/'+self.robot + '_AE',compile=False)
+                self.model_log =  pickle.load(open(out_path  +'/'+self.robot + '_AE_LOG', 'rb'))
             # self.vae = variationalAutoencoder()
             # self.vae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim)
             elif self.red == "supervisedAutoencoders":
                 self.sae = supervisedAutoencoder()
                 self.sae = load_model(out_path+'/'+self.robot + '_SAE',compile=False)
+                self.model_log =  pickle.load(open(out_path  +'/'+self.robot + '_SAE_LOG', 'rb'))
             # self.svae = supervisedVariationalAutoencoder()
             # self.svae.setDimReduction(self.input_dim, self.latent_dim, self.intermidiate_dim, 2)
             elif self.red == "supervisedClassifier":
                 self.sc = load_model(out_path+'/'+self.robot + '_SC',compile=False)
-        
+                self.model_log =  pickle.load(open(out_path  +'/'+self.robot + '_SC_LOG', 'rb'))
+
             if self.cl == 'gmm':
                 self.gmm = pickle.load(open(out_path+'/'+self.robot + '_gmm.sav', 'rb'))
             elif self.cl == 'kmeans':
@@ -101,8 +104,8 @@ class GEM2():
                 self.sc = supervisedClassifier()
                 self.sc.setDimensions(self.input_dim, self.latent_dim, self.intermidiate_dim)
             if self.cl == 'gmm':
-                #self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='full', max_iter=200, tol=1.0e-4, init_params = 'kmeans', n_init=50,warm_start=True,verbose=1)
-                self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='diag', max_iter=200, tol=1.0e-4, init_params = 'kmeans', n_init=50,warm_start=True,verbose=1)
+                self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='full', max_iter=200, tol=5.0e-4, init_params = 'kmeans',warm_start=False, n_init=50, verbose=1)
+                #self.gmm = mixture.GaussianMixture(n_components=3, covariance_type='diag', max_iter=200, tol=1.0e-3, init_params = 'kmeans',warm_start=False,, n_init=30, verbose=1)
             elif self.cl == 'kmeans':
                 self.kmeans = KMeans(init='k-means++',n_clusters=3, n_init=500,tol=1.0e-4)
 
@@ -197,6 +200,7 @@ class GEM2():
     def predict_dataset(self, data_):
         leg_probabilities = None
         reconstructed_input = None
+        model_log = None
         if(self.red == 'pca'):
             reduced_data = self.pca.transform(data_)
         elif(self.red == 'autoencoders'):
@@ -207,8 +211,8 @@ class GEM2():
             reconstructed_input = self.sae.predict(data_)[0]
             reduced_data = self.sae.predict(data_)[1]
             leg_probabilities = self.sae.predict(data_)[2]
-        # elif(self.red == 'supervisedVariationalAutoencoders'):
-        #     reduced_data = self.svae.encoder.predict(data_.reshape(1,-1))[0]
+            model_log = self.model_log
+
         elif(self.red == "supervisedClassifier"):
             reduced_data = self.sc.predict(data_)
             leg_probabilities = reduced_data
@@ -223,7 +227,7 @@ class GEM2():
         else:
             print('Unrecognired Clustering Method')       
 
-        return predicted_labels, reduced_data, leg_probabilities, reconstructed_input
+        return predicted_labels, reduced_data, leg_probabilities, reconstructed_input, model_log
 
     def reducePCA(self,data_train, save_model_):
         self.pca.fit(data_train)
@@ -239,14 +243,19 @@ class GEM2():
         self.reduced_data_train =  self.ae.encoder.predict(data_train)
         if(save_model_):
             self.ae.encoder.save(self.robot + '_AE')
+            with open(self.robot + '_AE_LOG', 'wb') as file_pi:
+                pickle.dump(self.ae.model_log, file_pi)
 
     def reduceSAE(self,data_train,data_labels,data_validation,data_validation_labels, save_model_):
-        self.sae.fit(data_train,data_labels,data_validation, data_validation_labels, 25, 1)
+        self.sae.fit(data_train,data_labels,data_validation, data_validation_labels, 300, 16)
         self.reduced_data_train =  self.sae.model.predict(data_train)[1]
         self.leg_probabilities = self.sae.model.predict(data_train)[2]
         self.reconstructed_input = self.sae.model.predict(data_train)[0]
+        self.model_log = self.sae.model_log.history
         if(save_model_):
             self.sae.model.save(self.robot + '_SAE')
+            with open(self.robot + '_SAE_LOG', 'wb') as file_pi:
+                pickle.dump(self.sae.model_log, file_pi)
 
     # def reduceSVAE(self,data_train,data_labels,data_validation,data_validation_labels, save_model_):
     #     self.svae.fit(data_train,data_labels,data_validation, data_validation_labels, 500, 2)
@@ -265,6 +274,8 @@ class GEM2():
         self.reduced_data_train =  self.sc.model.predict(data_train)
         if(save_model_):
             self.sc.model.save(self.robot + '_SC')
+            with open(self.robot + '_SC_LOG', 'wb') as file_pi:
+                pickle.dump(self.sc.model_log, file_pi)
 
     def clusterGMM(self, save_model_):
         self.gmm.fit(self.reduced_data_train)

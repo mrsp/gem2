@@ -277,6 +277,21 @@ class GEM2_tools():
             yhat = iso.fit_predict(X_train)          
             self.outlier_mask = yhat != -1
             self.data_train = X_train[self.outlier_mask,:]
+            self.data_train_min = np.zeros((self.data_train.shape[1]))
+            self.data_train_max = np.zeros((self.data_train.shape[1]))
+            self.data_train_mean = np.zeros((self.data_train.shape[1]))
+            self.data_train_std = np.zeros((self.data_train.shape[1]))
+
+            #Data Statistics
+            for i in range(self.data_train.shape[1]):
+                self.data_train_min[i] = np.min(self.data_train[:, i])
+                self.data_train_max[i] = np.max(self.data_train[:, i])
+                self.data_train_mean[i] = np.mean(self.data_train[:, i])
+                self.data_train_std[i] = np.std(self.data_train[:, i])
+                self.data_train[:, i] = self.normalize_data(self.data_train[:, i],self.data_train_max[i], self.data_train_min[i],-1,1)   
+                #self.data_train[:, i] = self.standarize_data(self.data_train[:, i],self.data_train_mean[i], self.data_train_std[i])   
+                #self.data_train[:, i] = self.normalizeMean_data(self.data_train[:, i],self.data_train_max[i], self.data_train_min[i],self.data_train_mean[i])   
+
         else:
             #X_train = lfX[0:dlen] - rfX[0:dlen]
             #X_train = np.column_stack([X_train, lfY[0:dlen] - rfY[0:dlen]])
@@ -423,6 +438,13 @@ class GEM2_tools():
                 yhat = iso.fit_predict(X_val) 
                 self.outlier_mask_val = yhat != -1
                 self.data_val = X_val[self.outlier_mask_val,:]
+                #Data Statistics
+                for i in range(self.data_val.shape[1]):
+                    self.data_val_min[i] = np.min(self.data_val[:, i])
+                    self.data_val_max[i] = np.max(self.data_val[:, i])
+                    self.data_val_mean[i] = np.mean(self.data_val[:, i])
+                    self.data_val_std[i] = np.std(self.data_val[:, i])
+                    self.data_val[:, i] = self.normalize_data(self.data_val[:, i],self.data_val_max[i], self.data_val_min[i],-1,1)
 
 
             else:
@@ -904,6 +926,43 @@ class GEM2_tools():
         plt.xlabel('$samples$')
         plt.grid('on')
         plt.show()
+
+    def plot_learning_results(self, model_log, gem2):
+        if(model_log is not None):
+            # list all data in history
+            print(model_log.history.keys())
+            # summarize history for accuracy
+            plt.plot(model_log.history['reconst_output_root_mean_squared_error'])
+            plt.plot(model_log.history['val_reconst_output_root_mean_squared_error'])
+            plt.title('Reconstruction Root Mean Squared Error')
+            plt.ylabel('accuracy')
+            plt.xlabel('epoch')
+            plt.legend(['train', 'test'], loc='upper left')
+            plt.show()
+            # summarize history for loss
+            plt.plot(model_log.history['reconst_output_loss'])
+            plt.plot(model_log.history['val_reconst_output_loss'])
+            plt.title('Reconstruction Mean Squared Error')
+            plt.ylabel('loss')
+            plt.xlabel('epoch')
+            plt.legend(['train', 'test'], loc='upper left')
+            plt.show()
+            if(gem2):
+                plt.plot(model_log.history['class_output_loss'])
+                plt.plot(model_log.history['val_class_output_loss'])
+                plt.title('Latent Supervision Mean Squared Logarithmic Error')
+                plt.ylabel('loss')
+                plt.xlabel('epoch')
+                plt.legend(['train', 'test'], loc='upper left')
+                plt.show()   
+                plt.plot(model_log.history['class_output_root_mean_squared_error'])
+                plt.plot(model_log.history['val_class_output_root_mean_squared_error'])
+                plt.title('Latent Supervision Root Mean Squared Error')
+                plt.ylabel('accuracy')
+                plt.xlabel('epoch')
+                plt.legend(['train', 'test'], loc='upper left')
+                plt.show()
+
 
 
     def plot_results(self,X, Y_, means, covariances, title):
