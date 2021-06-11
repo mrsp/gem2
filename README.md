@@ -5,9 +5,6 @@ GEM2 is a machine learning framework that combines effectively unsupervised and 
 
 GEM2 can be used for real-time gait phase estimation. The latter functionality facilitates 3D-base/CoM estimation with the State Estimation for RObot Walking (SEROW) framework (https://github.com/mrsp/serow). 
 
-Papers: 
-* Gait-Phase Estimation for Humanoid Robots (Intl. Conf. on Robotics and Automation (ICRA), 2021 - under review)
-
 ## GEM2 State Publisher (https://github.com/mrsp/gem2_state_publisher) 
 A ROS - C/C++ package for gathering  all necessary data for GEM2 in real-time.
 
